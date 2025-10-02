@@ -50,21 +50,14 @@ RUN npm ci
 # Copy project files
 COPY . .
 
-# Default command: run tests for all browsers with fallback
+# Default command: run tests and generate Allure report
 CMD ["sh", "-c", "\
-    rm -rf allure-results && mkdir -p allure-results; \
+    rm -rf allure-results && mkdir allure-results; \
     for BROWSER in chrome firefox edge; do \
     echo '>>> Running tests in $BROWSER...'; \
-    # Проверка доступности драйвера для Edge
-    if [ \"$BROWSER\" = 'edge' ]; then \
-    if ! curl -sSf https://msedgedriver.azureedge.net >/dev/null; then \
-    echo '>>> EdgeDriver unavailable, fallback to Chrome'; \
-    BROWSER=chrome; \
-    fi; \
-    fi; \
-    npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER, continue'; \
+    BROWSER=$BROWSER npx wdio run ./wdio.conf.js || echo 'Tests failed for $BROWSER, continue'; \
     done; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
-    echo '>>> Opening merged Allure report...'; \
-    allure open -h 0.0.0.0 -p 8080 /usr/src/app/allure-report \
+    echo '>>> Allure report generated. Access it via port 8080.'; \
+    allure open -h 0.0.0.0 -p 8080 /usr/src/app/allure-report --server-only \
     "]
