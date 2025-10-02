@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y \
     # Firefox
     && apt-get install -y firefox-esr \
     # Edge
-    && wget -q https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_126.0.2592.87-1_amd64.deb \
-    && apt-get install -y ./microsoft-edge-stable_126.0.2592.87-1_amd64.deb \
-    && rm -rf /var/lib/apt/lists/*
+    && wget -q https://msedgedriver.azureedge.net/126.0.2592.87/edgedriver_linux64.zip \
+    && unzip edgedriver_linux64.zip -d /usr/local/bin \
+    && rm edgedriver_linux64.zip
 
 
 # Install environment variables for Java
