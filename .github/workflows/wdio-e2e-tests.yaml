@@ -20,6 +20,9 @@ jobs:
       - name: Build Docker image
         run: docker build -t wdio-telnyx .
 
+      - name: Prepare browser-specific reports folder
+        run: mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
+
       - name: Run tests in Docker
         run: |
           docker run --rm \
@@ -28,8 +31,16 @@ jobs:
           -v ${{ github.workspace }}/reports:/usr/src/app/allure-report \
           wdio-telnyx
 
-      - name: Upload Allure report
+      - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-${{ matrix.browser }}
-          path: reports
+          path: reports/${{ matrix.browser }}
+
+      - name: Deploy Allure reports to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./reports
+          keep_files: true
