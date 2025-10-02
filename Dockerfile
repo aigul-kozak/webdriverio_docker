@@ -55,7 +55,6 @@ CMD ["sh", "-c", "\
     rm -rf allure-results && mkdir -p allure-results; \
     for BROWSER in chrome firefox edge; do \
     echo '>>> Running tests in $BROWSER...'; \
-    # Check Edge driver availability
     if [ \"$BROWSER\" = 'edge' ]; then \
     if ! curl -sSf https://msedgedriver.azureedge.net >/dev/null; then \
     echo '>>> EdgeDriver unavailable, fallback to Chrome'; \
@@ -65,6 +64,11 @@ CMD ["sh", "-c", "\
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER, continue'; \
     done; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
-    echo '>>> Allure report generated. Access it via port 8080.'; \
-    cd /usr/src/app && allure open --server-only -h 0.0.0.0 -p 8080 \
+    echo '>>> Allure report generated.'; \
+    if [ \"$CI\" = \"true\" ]; then \
+    echo '>>> Running in CI, skip allure server.'; \
+    else \
+    echo '>>> Starting Allure server at http://localhost:8080'; \
+    allure open --server-only -h 0.0.0.0 -p 8080 /usr/src/app/allure-report; \
+    fi \
     "]
