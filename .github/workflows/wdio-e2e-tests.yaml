@@ -23,14 +23,22 @@ jobs:
       - name: Prepare browser-specific reports folder
         run: mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
 
+      - name: Check EdgeDriver availability
+        if: matrix.browser == 'edge'
+        run: |
+          if ! docker run --rm wdio-telnyx sh -c "curl -sSf https://msedgedriver.azureedge.net" >/dev/null; then
+            echo "EdgeDriver unavailable, fallback to Chrome"
+            echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
+          fi
+
       - name: Run tests in Docker
         run: |
+          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }} \
           docker run --rm \
-            -e BROWSER=${{ matrix.browser }} \
-            -e BASE_URL=https://telnyx.com \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
-            wdio-telnyx \
-            sh -c "npx wdio run ./wdio.conf.js && allure generate allure-results --clean -o /usr/src/app/allure-report"
+          -e BROWSER=$BROWSER \
+          -e BASE_URL=https://telnyx.com \
+          -v ${{ github.workspace }}/reports:/usr/src/app/allure-report \
+          wdio-telnyx
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
