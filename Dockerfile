@@ -31,7 +31,7 @@ RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stab
 # Install Edge
 RUN apt-get update && apt-get install -y microsoft-edge-stable
 
-# Install npm packages for drivers (chromedriver, geckodriver, edgedriver)
+# Install npm packages for drivers (chromedriver, geckodriver, edgedriver, allure)
 RUN npm install -g chromedriver geckodriver edgedriver allure-commandline --save-dev
 
 # Set environment variables for Java
@@ -66,5 +66,5 @@ CMD ["sh", "-c", "\
     done; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
     echo '>>> Allure report generated. Access it via port 8080.'; \
-    allure open --server-only -h 0.0.0.0 -p 8080 /usr/src/app/allure-report \
+    cd /usr/src/app && allure open --server-only -h 0.0.0.0 -p 8080 \
     "]
