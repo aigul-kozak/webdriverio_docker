@@ -26,10 +26,11 @@ jobs:
       - name: Run tests in Docker
         run: |
           docker run --rm \
-          -e BROWSER=${{ matrix.browser }} \
-          -e BASE_URL=https://telnyx.com \
-          -v ${{ github.workspace }}/reports:/usr/src/app/allure-report \
-          wdio-telnyx
+            -e BROWSER=${{ matrix.browser }} \
+            -e BASE_URL=https://telnyx.com \
+            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
+            wdio-telnyx \
+            sh -c "npx wdio run ./wdio.conf.js && allure generate allure-results --clean -o /usr/src/app/allure-report"
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
