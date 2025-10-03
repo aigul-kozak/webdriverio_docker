@@ -34,12 +34,15 @@ jobs:
         run: |
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM
-          docker run --rm \
+          CONTAINER_ID=$(docker create \
             -e BROWSER=$BROWSER \
             -e BROWSER_PROFILE=$BROWSER_PROFILE \
             -e BASE_URL=https://telnyx.com \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-results \
-            wdio-telnyx
+            wdio-telnyx)
+          docker start -a $CONTAINER_ID
+          # Copy Allure report outside
+          docker cp $CONTAINER_ID:/usr/src/app/allure-report ${{ github.workspace }}/reports/${{ matrix.browser }}
+          docker rm $CONTAINER_ID
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4

@@ -50,11 +50,12 @@ COPY . .
 
 # Default command: run tests for a single browser (via ENV BROWSER)
 CMD ["sh", "-c", "\
-    export BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM; \
     echo '>>> Cleaning temporary browser profiles...'; \
-    rm -rf /tmp/chrome-* /tmp/edge-* /tmp/firefox-* || true; \
+    rm -rf /tmp/chrome-* /tmp/edge-* || true; \
+    if [ \"$BROWSER\" = \"chrome\" ] || [ \"$BROWSER\" = \"edge\" ]; then \
+    export BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM; \
     mkdir -p $BROWSER_PROFILE; \
-    rm -rf allure-results && mkdir -p allure-results; \
+    fi; \
     echo '>>> Running tests in $BROWSER with profile $BROWSER_PROFILE'; \
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
