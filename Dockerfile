@@ -58,9 +58,6 @@ CMD ["sh", "-c", "\
     fi; \
     echo '>>> Running tests in $BROWSER with profile $BROWSER_PROFILE'; \
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
-    TMP_REPORT=/tmp/allure-report; \
-    rm -rf $TMP_REPORT && mkdir -p $TMP_REPORT; \
-    allure generate allure-results --clean -o $TMP_REPORT; \
-    cp -r $TMP_REPORT/* /usr/src/app/allure-results/; \
-    echo '>>> Allure report generated in /usr/src/app/allure-results' \
+    allure generate allure-results --clean -o /usr/src/app/allure-report; \
+    echo '>>> Allure report generated in /usr/src/app/allure-report' \
     "]
