@@ -27,6 +27,7 @@ export const config = {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
+      // Chrome options
       'goog:chromeOptions':
         process.env.BROWSER === 'chrome'
           ? {
@@ -37,17 +38,19 @@ export const config = {
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
                 '--remote-allow-origins=*',
-                // уникальная папка профиля для каждого процесса
-                `--user-data-dir=/tmp/chrome-${process.pid}-${Date.now()}`,
               ],
             }
           : undefined,
 
+      // Firefox options
       'moz:firefoxOptions': process.env.BROWSER === 'firefox' ? { args: ['-headless'] } : undefined,
 
+      // Edge options
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
-          ? { args: ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'] }
+          ? {
+              args: ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'],
+            }
           : undefined,
     },
   ],
@@ -70,11 +73,11 @@ export const config = {
   },
 
   beforeSession: function (config, capabilities, specs) {
-    const browser = process.env.BROWSER || 'chrome';
-    if (browser === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
+    const browserName = process.env.BROWSER || 'chrome';
+    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
       allure.addLabel('browser', 'edge (fallback → chrome)');
     } else {
-      allure.addLabel('browser', browser);
+      allure.addLabel('browser', browserName);
     }
   },
 };

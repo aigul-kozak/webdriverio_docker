@@ -50,6 +50,8 @@ COPY . .
 
 # Default command: run tests for a single browser (via ENV BROWSER)
 CMD ["sh", "-c", "\
+    echo '>>> Cleaning temporary browser profiles...'; \
+    rm -rf /tmp/chrome-* /tmp/edge-* || true; \
     rm -rf allure-results && mkdir -p allure-results; \
     echo '>>> Running tests in $BROWSER'; \
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
