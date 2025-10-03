@@ -46,6 +46,84 @@ jobs:
           name: allure-report-${{ matrix.browser }}
           path: reports/${{ matrix.browser }}
 
+      - name: Create root index.html
+        if: github.ref == 'refs/heads/main' && matrix.browser == 'chrome'
+        run: |
+          cat > ./reports/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>Allure Reports</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background: #f5f7fa;
+                margin: 0;
+                padding: 20px;
+              }
+              h1 {
+                text-align: center;
+                color: #333;
+              }
+              ul {
+                list-style: none;
+                padding: 0;
+                max-width: 400px;
+                margin: 40px auto;
+              }
+              li {
+                margin: 15px 0;
+              }
+              a {
+                display: flex;
+                align-items: center;
+                padding: 12px 18px;
+                background: white;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 18px;
+                color: #333;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                transition: 0.2s;
+              }
+              a:hover {
+                background: #eef3ff;
+                transform: translateY(-2px);
+              }
+              svg {
+                width: 24px;
+                height: 24px;
+                margin-right: 12px;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Allure Reports</h1>
+            <ul>
+              <li>
+                <a href="chrome/index.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#4CAF50" d="M23 6L9 32h14z"/><path fill="#F44336" d="M23 6l14 26H23z"/><path fill="#FFC107" d="M9 32h28l-14 10z"/></svg>
+                  Chrome Report
+                </a>
+              </li>
+              <li>
+                <a href="firefox/index.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FF9800" d="M24 4c11.046 0 20 8.954 20 20S35.046 44 24 44 4 35.046 4 24 12.954 4 24 4z"/><path fill="#FFF" d="M24 10c7.732 0 14 6.268 14 14S31.732 38 24 38 10 31.732 10 24 16.268 10 24 10z"/></svg>
+                  Firefox Report
+                </a>
+              </li>
+              <li>
+                <a href="edge/index.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#0C59A4" d="M24 4c11.046 0 20 8.954 20 20 0 8.837-7.163 16-16 16H20c-4.418 0-8-3.582-8-8 0-2.21.896-4.21 2.344-5.656A7.978 7.978 0 0 1 20 24h8c2.21 0 4-1.79 4-4 0-2.209-1.79-4-4-4h-8c-6.627 0-12 5.373-12 12s5.373 12 12 12h8c11.046 0 20-8.954 20-20S35.046 4 24 4z"/></svg>
+                  Edge Report
+                </a>
+              </li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
       - name: Deploy Allure reports to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
