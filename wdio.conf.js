@@ -45,12 +45,11 @@ export const config = {
             }
           : undefined,
 
-      // Firefox options
+      // Firefox options (без профиля)
       'moz:firefoxOptions':
         process.env.BROWSER === 'firefox'
           ? {
-              args: ['-headless'],
-              profile: process.env.BROWSER_PROFILE || `/tmp/firefox-${process.pid}-${Date.now()}`,
+              args: ['-headless', '--no-sandbox'],
             }
           : undefined,
 
