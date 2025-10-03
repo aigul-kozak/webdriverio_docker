@@ -38,10 +38,15 @@ jobs:
           docker run --rm \
             -e BROWSER=$BROWSER \
             -e BASE_URL=https://telnyx.com \
-            -e ALLURE_RESULTS=/usr/src/app/allure-results \
             -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
             wdio-telnyx
+
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline --save-dev
+
+      - name: Generate Allure HTML report
+        run: |
+          npx allure generate results/${{ matrix.browser }} --clean -o reports/${{ matrix.browser }}
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
