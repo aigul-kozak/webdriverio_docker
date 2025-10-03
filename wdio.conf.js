@@ -13,8 +13,7 @@ export const config = {
     [
       'allure',
       {
-        // Папка для результатов WDIO
-        outputDir: process.env.ALLURE_RESULTS || 'allure-results',
+        outputDir: process.env.ALLURE_RESULTS || '/usr/src/app/allure-results',
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
       },
@@ -46,7 +45,11 @@ export const config = {
           : undefined,
 
       'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox' ? { args: ['-headless', '--no-sandbox'] } : undefined,
+        process.env.BROWSER === 'firefox'
+          ? {
+              args: ['-headless', '--no-sandbox'],
+            }
+          : undefined,
 
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
@@ -74,7 +77,7 @@ export const config = {
 
   afterTest: async function (test, context, { error }) {
     if (error) {
-      const screenshotDir = process.env.ALLURE_RESULTS || path.resolve('./allure-results');
+      const screenshotDir = process.env.ALLURE_RESULTS || '/usr/src/app/allure-results';
       if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
       await browser.saveScreenshot(
         path.join(screenshotDir, `${test.title.replace(/\s+/g, '_')}.png`),
