@@ -32,12 +32,13 @@ jobs:
             echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker (with mounted allure dirs)
+      - name: Run tests in Docker
         run: |
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           docker run --rm \
             -e BROWSER=$BROWSER \
             -e BASE_URL=https://telnyx.com \
+            -e ALLURE_RESULTS=/usr/src/app/allure-results \
             -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
             -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
             wdio-telnyx

@@ -13,7 +13,8 @@ export const config = {
     [
       'allure',
       {
-        outputDir: process.env.ALLURE_RESULTS || 'allure-results', // монтированная папка
+        // Папка для результатов WDIO
+        outputDir: process.env.ALLURE_RESULTS || 'allure-results',
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
       },
@@ -45,11 +46,7 @@ export const config = {
           : undefined,
 
       'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox'
-          ? {
-              args: ['-headless', '--no-sandbox'],
-            }
-          : undefined,
+        process.env.BROWSER === 'firefox' ? { args: ['-headless', '--no-sandbox'] } : undefined,
 
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'

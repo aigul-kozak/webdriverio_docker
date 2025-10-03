@@ -1,4 +1,4 @@
-# Node base image
+# Base image Node.js
 FROM node:22-bullseye
 
 # Install dependencies
@@ -19,21 +19,22 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
     && sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list' \
     && apt-get update && apt-get install -y microsoft-edge-stable
 
-# Install drivers & Allure CLI
+# Install npm packages (drivers + Allure CLI)
 RUN npm install -g chromedriver geckodriver edgedriver allure-commandline --save-dev
 
-# Java env
+# Set Java
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 WORKDIR /usr/src/app
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# CMD: run tests + generate Allure report
+# Default CMD: run tests + generate Allure report
 CMD ["sh", "-c", "\
-    echo '>>> Cleaning temp profiles...'; \
+    echo '>>> Cleaning temporary browser profiles...'; \
     rm -rf /tmp/chrome-* /tmp/edge-* || true; \
     if [ \"$BROWSER\" = \"chrome\" ] || [ \"$BROWSER\" = \"edge\" ]; then \
     export BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM; \
@@ -41,6 +42,6 @@ CMD ["sh", "-c", "\
     fi; \
     echo '>>> Running tests in $BROWSER with profile $BROWSER_PROFILE'; \
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
-    allure generate /usr/src/app/allure-results --clean -o /usr/src/app/allure-report; \
+    allure generate $ALLURE_RESULTS --clean -o /usr/src/app/allure-report; \
     echo '>>> Allure report generated in /usr/src/app/allure-report' \
     "]
