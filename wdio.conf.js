@@ -13,7 +13,7 @@ export const config = {
     [
       'allure',
       {
-        outputDir: 'allure-results',
+        outputDir: process.env.ALLURE_RESULTS || 'allure-results', // монтированная папка
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
       },
@@ -77,7 +77,7 @@ export const config = {
 
   afterTest: async function (test, context, { error }) {
     if (error) {
-      const screenshotDir = path.resolve('./allure-results');
+      const screenshotDir = process.env.ALLURE_RESULTS || path.resolve('./allure-results');
       if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
       await browser.saveScreenshot(
         path.join(screenshotDir, `${test.title.replace(/\s+/g, '_')}.png`),

@@ -19,8 +19,10 @@ jobs:
       - name: Build Docker image
         run: docker build -t wdio-telnyx .
 
-      - name: Prepare browser-specific reports folder
-        run: mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
+      - name: Prepare folders
+        run: |
+          mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}
+          mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
 
       - name: Check EdgeDriver availability
         if: matrix.browser == 'edge'
@@ -30,19 +32,13 @@ jobs:
             echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker (with mounted allure-report)
+      - name: Run tests in Docker (with mounted allure dirs)
         run: |
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
-          if [ "$BROWSER" = "chrome" ] || [ "$BROWSER" = "edge" ]; then
-            BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM
-          else
-            BROWSER_PROFILE=""
-          fi
-
           docker run --rm \
             -e BROWSER=$BROWSER \
-            -e BROWSER_PROFILE=$BROWSER_PROFILE \
             -e BASE_URL=https://telnyx.com \
+            -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
             -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
             wdio-telnyx
 
