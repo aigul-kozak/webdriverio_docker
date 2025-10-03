@@ -38,6 +38,9 @@ export const config = {
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
                 '--remote-allow-origins=*',
+                `--user-data-dir=${
+                  process.env.BROWSER_PROFILE || `/tmp/chrome-${process.pid}-${Date.now()}`
+                }`,
               ],
             }
           : undefined,
@@ -49,7 +52,15 @@ export const config = {
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
           ? {
-              args: ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'],
+              args: [
+                '--headless=new',
+                '--disable-gpu',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                `--user-data-dir=${
+                  process.env.BROWSER_PROFILE || `/tmp/edge-${process.pid}-${Date.now()}`
+                }`,
+              ],
             }
           : undefined,
     },

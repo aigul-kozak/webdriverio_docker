@@ -32,12 +32,14 @@ jobs:
 
       - name: Run tests in Docker
         run: |
-          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }} \
+          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
+          BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM
           docker run --rm \
-          -e BROWSER=$BROWSER \
-          -e BASE_URL=https://telnyx.com \
-          -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
-          wdio-telnyx
+            -e BROWSER=$BROWSER \
+            -e BROWSER_PROFILE=$BROWSER_PROFILE \
+            -e BASE_URL=https://telnyx.com \
+            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
+            wdio-telnyx
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
