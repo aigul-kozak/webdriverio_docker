@@ -37,7 +37,7 @@ jobs:
           docker run --rm \
           -e BROWSER=$BROWSER \
           -e BASE_URL=https://telnyx.com \
-          -v ${{ github.workspace }}/reports:/usr/src/app/allure-report \
+          -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
           wdio-telnyx
 
       - name: Upload Allure report as artifact
@@ -47,6 +47,7 @@ jobs:
           path: reports/${{ matrix.browser }}
 
       - name: Deploy Allure reports to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

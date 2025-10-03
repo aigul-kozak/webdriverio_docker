@@ -1,3 +1,5 @@
+import allure from '@wdio/allure-reporter';
+
 export const config = {
   runner: 'local',
   framework: 'mocha',
@@ -18,9 +20,6 @@ export const config = {
 
   services: [],
 
-  //
-  // Capabilities: выбираем браузер из ENV
-  //
   capabilities: [
     {
       maxInstances: 1,
@@ -65,11 +64,23 @@ export const config = {
   },
 
   //
-  // Сохраняем скриншоты при падении
+  // Save screenshots when crashing
   //
   afterTest: async function (test, context, { error }) {
     if (error) {
       await browser.saveScreenshot(`./allure-results/${test.title.replace(/\s+/g, '_')}.png`);
+    }
+  },
+
+  //
+  // Adding a Browser Label to Allure (with Fallback)
+  //
+  beforeSession: function (config, capabilities, specs) {
+    const browser = process.env.BROWSER || 'chrome';
+    if (browser === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
+      allure.addLabel('browser', 'edge (fallback → chrome)');
+    } else {
+      allure.addLabel('browser', browser);
     }
   },
 };
