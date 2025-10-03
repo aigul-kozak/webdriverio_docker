@@ -30,7 +30,7 @@ jobs:
             echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker (write allure-results directly to volume)
+      - name: Run tests in Docker
         run: |
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           if [ "$BROWSER" = "chrome" ] || [ "$BROWSER" = "edge" ]; then
@@ -40,7 +40,6 @@ jobs:
           fi
 
           docker run --rm \
-            -u $(id -u):$(id -g) \
             -e BROWSER=$BROWSER \
             -e BROWSER_PROFILE=$BROWSER_PROFILE \
             -e BASE_URL=https://telnyx.com \
@@ -51,11 +50,11 @@ jobs:
               rm -rf /tmp/chrome-* /tmp/edge-* || true; \
               if [ \"$BROWSER\" = \"chrome\" ] || [ \"$BROWSER\" = \"edge\" ]; then \
                 export BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM; \
-                mkdir -p $BROWSER_PROFILE; \
+                mkdir -p \$BROWSER_PROFILE; \
               fi; \
               echo '>>> Running tests in $BROWSER'; \
               npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
-              echo '>>> Allure results written to mounted volume'"
+              echo '>>> Allure results are available in /usr/src/app/allure-results'"
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
