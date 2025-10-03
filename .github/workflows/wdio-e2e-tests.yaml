@@ -30,7 +30,7 @@ jobs:
             echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker (collect allure-results)
+      - name: Run tests in Docker (with mounted allure-report)
         run: |
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           if [ "$BROWSER" = "chrome" ] || [ "$BROWSER" = "edge" ]; then
@@ -43,12 +43,8 @@ jobs:
             -e BROWSER=$BROWSER \
             -e BROWSER_PROFILE=$BROWSER_PROFILE \
             -e BASE_URL=https://telnyx.com \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-results \
+            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
             wdio-telnyx
-
-      - name: Generate Allure HTML
-        run: |
-          allure generate reports/${{ matrix.browser }} --clean -o reports/${{ matrix.browser }}
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
