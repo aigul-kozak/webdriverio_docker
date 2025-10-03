@@ -15,23 +15,21 @@ RUN apt-get update && apt-get install -y \
 
 # Install Chrome via official repo
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-# Add Microsoft key
+# Add Microsoft key & Edge repo
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg \
     && install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/ \
-    && rm microsoft.gpg
-
-# Add repository Edge
-RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list'
+    && rm microsoft.gpg \
+    && sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list'
 
 # Install Edge
 RUN apt-get update && apt-get install -y microsoft-edge-stable
 
-# Install npm packages for drivers + allure
+# Install npm packages for drivers + Allure
 RUN npm install -g chromedriver geckodriver edgedriver allure-commandline --save-dev
 
 # Set environment variables for Java
@@ -41,7 +39,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 # Create working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and lock
+# Copy package.json and lockfile
 COPY package*.json ./
 
 # Install project dependencies
@@ -50,10 +48,11 @@ RUN npm ci
 # Copy project files
 COPY . .
 
-# Default command: run tests only for one browser
+# Default command: run tests for a single browser (via ENV BROWSER)
 CMD ["sh", "-c", "\
     rm -rf allure-results && mkdir -p allure-results; \
+    echo '>>> Running tests in $BROWSER'; \
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER'; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
-    echo '>>> Allure report generated.' \
+    echo '>>> Allure report generated in /usr/src/app/allure-report' \
     "]

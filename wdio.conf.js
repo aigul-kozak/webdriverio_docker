@@ -1,4 +1,6 @@
 import allure from '@wdio/allure-reporter';
+import fs from 'fs';
+import path from 'path';
 
 export const config = {
   runner: 'local',
@@ -35,23 +37,17 @@ export const config = {
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
                 '--remote-allow-origins=*',
-                `--user-data-dir=/tmp/chrome-${Date.now()}`,
+                // уникальная папка профиля для каждого процесса
+                `--user-data-dir=/tmp/chrome-${process.pid}-${Date.now()}`,
               ],
             }
           : undefined,
 
-      'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox'
-          ? {
-              args: ['-headless'],
-            }
-          : undefined,
+      'moz:firefoxOptions': process.env.BROWSER === 'firefox' ? { args: ['-headless'] } : undefined,
 
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
-          ? {
-              args: ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'],
-            }
+          ? { args: ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'] }
           : undefined,
     },
   ],
@@ -63,18 +59,16 @@ export const config = {
     timeout: 60000,
   },
 
-  //
-  // Save screenshots when crashing
-  //
   afterTest: async function (test, context, { error }) {
     if (error) {
-      await browser.saveScreenshot(`./allure-results/${test.title.replace(/\s+/g, '_')}.png`);
+      const screenshotDir = path.resolve('./allure-results');
+      if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
+      await browser.saveScreenshot(
+        path.join(screenshotDir, `${test.title.replace(/\s+/g, '_')}.png`),
+      );
     }
   },
 
-  //
-  // Adding a Browser Label to Allure (with Fallback)
-  //
   beforeSession: function (config, capabilities, specs) {
     const browser = process.env.BROWSER || 'chrome';
     if (browser === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
