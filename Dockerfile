@@ -1,4 +1,4 @@
-# Base image Node.js (GitHub Actions Node v22)
+# Base image Node.js
 FROM node:22-bullseye
 
 # Install dependencies for browsers
@@ -31,7 +31,7 @@ RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stab
 # Install Edge
 RUN apt-get update && apt-get install -y microsoft-edge-stable
 
-# Install npm packages for drivers (chromedriver, geckodriver, edgedriver, allure)
+# Install npm packages for drivers + allure
 RUN npm install -g chromedriver geckodriver edgedriver allure-commandline --save-dev
 
 # Set environment variables for Java
@@ -64,11 +64,5 @@ CMD ["sh", "-c", "\
     npx wdio run ./wdio.conf.js || echo '>>> Tests failed for $BROWSER, continue'; \
     done; \
     allure generate allure-results --clean -o /usr/src/app/allure-report; \
-    echo '>>> Allure report generated.'; \
-    if [ \"$CI\" = \"true\" ]; then \
-    echo '>>> Running in CI, skip allure server.'; \
-    else \
-    echo '>>> Starting Allure server at http://localhost:8080'; \
-    allure open --server-only -h 0.0.0.0 -p 8080 /usr/src/app/allure-report; \
-    fi \
+    echo '>>> Allure report generated.' \
     "]
