@@ -46,7 +46,13 @@ export const config = {
           : undefined,
 
       // Firefox options
-      'moz:firefoxOptions': process.env.BROWSER === 'firefox' ? { args: ['-headless'] } : undefined,
+      'moz:firefoxOptions':
+        process.env.BROWSER === 'firefox'
+          ? {
+              args: ['-headless'],
+              profile: process.env.BROWSER_PROFILE || `/tmp/firefox-${process.pid}-${Date.now()}`,
+            }
+          : undefined,
 
       // Edge options
       'ms:edgeOptions':

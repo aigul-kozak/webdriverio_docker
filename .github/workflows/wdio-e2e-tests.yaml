@@ -38,7 +38,7 @@ jobs:
             -e BROWSER=$BROWSER \
             -e BROWSER_PROFILE=$BROWSER_PROFILE \
             -e BASE_URL=https://telnyx.com \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-report \
+            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/usr/src/app/allure-results \
             wdio-telnyx
 
       - name: Upload Allure report as artifact
