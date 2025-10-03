@@ -1,6 +1,6 @@
-import allure from '@wdio/allure-reporter';
 import fs from 'fs';
 import path from 'path';
+import allure from '@wdio/allure-reporter';
 
 export const config = {
   runner: 'local',
@@ -13,7 +13,6 @@ export const config = {
     [
       'allure',
       {
-        // Обязательно указываем папку, которая смонтирована из Docker
         outputDir: process.env.ALLURE_RESULTS || '/usr/src/app/allure-results',
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
@@ -72,9 +71,7 @@ export const config = {
   baseUrl: process.env.BASE_URL || 'https://telnyx.com',
   waitforTimeout: 10000,
 
-  mochaOpts: {
-    timeout: 60000,
-  },
+  mochaOpts: { timeout: 60000 },
 
   afterTest: async function (test, context, { error }) {
     if (error) {
