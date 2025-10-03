@@ -13,6 +13,7 @@ export const config = {
     [
       'allure',
       {
+        // Обязательно указываем папку, которая смонтирована из Docker
         outputDir: process.env.ALLURE_RESULTS || '/usr/src/app/allure-results',
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
