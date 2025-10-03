@@ -27,7 +27,6 @@ export const config = {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
-      // Chrome options
       'goog:chromeOptions':
         process.env.BROWSER === 'chrome'
           ? {
@@ -45,7 +44,6 @@ export const config = {
             }
           : undefined,
 
-      // Firefox options (без профиля)
       'moz:firefoxOptions':
         process.env.BROWSER === 'firefox'
           ? {
@@ -53,7 +51,6 @@ export const config = {
             }
           : undefined,
 
-      // Edge options
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
           ? {
