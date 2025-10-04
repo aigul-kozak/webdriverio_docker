@@ -1,6 +1,7 @@
+# Node base
 FROM node:22-bullseye
 
-# Install system deps (browsers + Java)
+# Install system dependencies (browsers + Java)
 RUN apt-get update && apt-get install -y \
     wget curl unzip gnupg ca-certificates xvfb openjdk-11-jdk firefox-esr \
     && rm -rf /var/lib/apt/lists/*
@@ -17,21 +18,22 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
     && echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
     && apt-get update && apt-get install -y microsoft-edge-stable
 
-# Install drivers (global)
+# Install browser drivers (global)
 RUN npm install -g chromedriver geckodriver edgedriver --save-dev
 
-# Java env (нужно Allure, но генерация будет вне контейнера)
+# Java environment (needed for Allure CLI, generation outside container)
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
+# Set working directory
 WORKDIR /usr/src/app
 
-# Install project deps
+# Install project dependencies
 COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Run only tests (no allure generate here!)
+# Run only tests (Allure HTML generation is done in CI)
 CMD ["sh", "-c", "\
     echo '>>> Cleaning temporary browser profiles...'; \
     rm -rf /tmp/chrome-* /tmp/edge-* || true; \
