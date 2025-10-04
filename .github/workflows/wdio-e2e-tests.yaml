@@ -88,35 +88,35 @@ jobs:
         run: |
           cat > ./reports/index.html <<'EOF'
           <!DOCTYPE html>
-          <html lang="en">
+           <html lang="en">
           <head>
-            <meta charset="UTF-8">
-            <title>Allure Reports</title>
-            <style>
-              body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-              h1 { text-align: center; color: #333; }
-              ul { list-style: none; padding: 0; max-width: 400px; margin: 40px auto; }
-              li { margin: 15px 0; }
-              a { display: flex; align-items: center; padding: 12px 18px; background: white;
-                  border-radius: 10px; text-decoration: none; font-size: 18px; color: #333;
-                  box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-              a:hover { background: #eef3ff; transform: translateY(-2px); }
-            </style>
+          <meta charset="UTF-8">
+          <title>Allure Reports</title>
+          <style>
+          body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+          h1 { text-align: center; color: #333; }
+          ul { list-style: none; padding: 0; max-width: 400px; margin: 40px auto; }
+          li { margin: 15px 0; }
+          a { display: flex; align-items: center; padding: 12px 18px; background: white;
+            border-radius: 10px; text-decoration: none; font-size: 18px; color: #333;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+          a:hover { background: #eef3ff; transform: translateY(-2px); }
+          </style>
           </head>
           <body>
-            <h1>Allure Reports</h1>
-            <ul>
+          <h1>Allure Reports</h1>
+          <ul>
           EOF
-
           # Генерируем ссылки только для существующих папок
           for browser in chrome firefox edge; do
-            if [ -d "./reports/$browser" ]; then
-              echo "  <li><a href=\"$browser/index.html\">${browser^} Report</a></li>" >> ./reports/index.html
-            fi
+          folder="allure-report-$browser"
+          if [ -d "./reports/$folder" ]; then
+          echo "  <li><a href=\"$folder/index.html\">${browser^} Report</a></li>" >> ./reports/index.html
+          fi
           done
 
           # Закрываем html
-          echo "  </ul></body></html>" >> ./reports/index.html
+            echo "  </ul></body></html>" >> ./reports/index.html
 
       # Деплой на gh-pages
       - name: Deploy Allure reports to GitHub Pages
