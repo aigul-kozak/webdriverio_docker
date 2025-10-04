@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import allure from '@wdio/allure-reporter';
+import { addAttachment, addLabel } from '@wdio/allure-reporter';
 
 export const config = {
   runner: 'local',
@@ -13,7 +13,7 @@ export const config = {
     [
       'allure',
       {
-        outputDir: process.env.ALLURE_RESULTS || '/usr/src/app/allure-results',
+        outputDir: process.env.ALLURE_RESULTS || './allure-results',
         disableWebdriverStepsReporting: false,
         disableWebdriverScreenshotsReporting: false,
       },
@@ -70,25 +70,34 @@ export const config = {
 
   baseUrl: process.env.BASE_URL || 'https://telnyx.com',
   waitforTimeout: 10000,
-
   mochaOpts: { timeout: 60000 },
 
-  afterTest: async function (test, context, { error }) {
-    if (error) {
-      const screenshotDir = process.env.ALLURE_RESULTS || '/usr/src/app/allure-results';
-      if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
-      await browser.saveScreenshot(
-        path.join(screenshotDir, `${test.title.replace(/\s+/g, '_')}.png`),
-      );
+  beforeSession: function (config, capabilities, specs) {
+    const dir = process.env.ALLURE_RESULTS || './allure-results';
+
+    // Очистка старых результатов
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+    fs.mkdirSync(dir, { recursive: true });
+
+    // Добавление label браузера
+    const browserName = process.env.BROWSER || 'chrome';
+    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
+      addLabel('browser', 'edge (fallback → chrome)');
+    } else {
+      addLabel('browser', browserName);
     }
   },
 
-  beforeSession: function (config, capabilities, specs) {
-    const browserName = process.env.BROWSER || 'chrome';
-    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
-      allure.addLabel('browser', 'edge (fallback → chrome)');
-    } else {
-      allure.addLabel('browser', browserName);
+  afterTest: async function (test, context, { error }) {
+    if (error) {
+      const screenshot = await browser.takeScreenshot();
+      addAttachment(
+        `${test.title.replace(/\s+/g, '_')}-screenshot`,
+        Buffer.from(screenshot, 'base64'),
+        'image/png',
+      );
     }
   },
 };
