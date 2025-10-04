@@ -1,0 +1,3 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","1215","should open homepage and validate title","","Sat Oct 04 07:39:32 UTC 2025","passed","Sat Oct 04 07:39:33 UTC 2025","","Telnyx Homepage","",""
+"","3780","should have correct title","","Thu Oct 02 12:52:19 UTC 2025","passed","Thu Oct 02 12:52:23 UTC 2025","","Telnyx","",""
