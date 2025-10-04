@@ -72,12 +72,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Скачиваем все артефакты в ./reports
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: reports
+          path: ./reports
           merge-multiple: true
 
+      # Проверяем содержимое перед деплоем
+      - name: List reports folder before deploy
+        run: ls -lR ./reports
+
+      # Создаём индекс с динамическими ссылками
       - name: Create root index.html
         run: |
           cat > ./reports/index.html <<'EOF'
@@ -100,18 +106,23 @@ jobs:
           <body>
             <h1>Allure Reports</h1>
             <ul>
-              <li><a href="chrome/index.html">Chrome Report</a></li>
-              <li><a href="firefox/index.html">Firefox Report</a></li>
-              <li><a href="edge/index.html">Edge Report</a></li>
-            </ul>
-          </body>
-          </html>
           EOF
 
+          # Генерируем ссылки только для существующих папок
+          for browser in chrome firefox edge; do
+            if [ -d "./reports/$browser" ]; then
+              echo "  <li><a href=\"$browser/index.html\">${browser^} Report</a></li>" >> ./reports/index.html
+            fi
+          done
+
+          # Закрываем html
+          echo "  </ul></body></html>" >> ./reports/index.html
+
+      # Деплой на gh-pages
       - name: Deploy Allure reports to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./reports
-          keep_files: false # <--- старые отчёты удаляются
+          keep_files: false
