@@ -76,6 +76,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: reports
+          merge-multiple: true
 
       - name: Create root index.html
         run: |
