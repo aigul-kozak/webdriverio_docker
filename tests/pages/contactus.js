@@ -17,13 +17,32 @@ class ContactUsPage {
     await setiLink.waitForExist({ timeout: 10000 });
     await setiLink.waitForDisplayed({ timeout: 10000 });
 
+    // save tabs
+    const oldHandles = await browser.getWindowHandles();
+
     await setiLink.click();
-    await browser.switchWindow('https://seti.telnyx.com');
+    await browser.pause(2000);
+
+    // check new tab
+    const newHandles = await browser.getWindowHandles();
+
+    if (newHandles.length > oldHandles.length) {
+      // move to new tab
+      const newHandle = newHandles.find((h) => !oldHandles.includes(h));
+      console.log('🪟 Switching to new tab:', newHandle);
+      await browser.switchToWindow(newHandle);
+    } else {
+      // Firefox headless often opens in the same tab
+      console.log('No new window detected — continuing in current tab');
+    }
+
     await browser.pause(3000);
 
+    // accept cookies, if any
     const cookieBtn = await $('button[id="onetrust-pc-btn-handler"]');
     if (await cookieBtn.isDisplayed()) {
       await cookieBtn.click();
+      await browser.pause(1000);
     }
 
     // make search
@@ -33,16 +52,15 @@ class ContactUsPage {
 
     await searchInput.setValue(query);
     await searchInput.click();
-    //await browser.keys('Enter');
 
-    // wait for autosuggest and click
+    // click autosugestion
     const resultMark = await $('//a[contains(text(), "SIP Trunking")]');
     await resultMark.waitForExist({ timeout: 10000 });
     await resultMark.scrollIntoView();
     await browser.pause(200);
     await browser.execute((el) => el.click(), resultMark);
 
-    // check "SIP Trunking" header
+    // check header
     const sipHeading = await $('//h1[normalize-space()="SIP Trunking"]');
     await sipHeading.waitForDisplayed({ timeout: 10000 });
     await browser.pause(2000);

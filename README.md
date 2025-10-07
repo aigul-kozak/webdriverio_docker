@@ -1,4 +1,6 @@
-Project Structure
+WebdriverIO Tests for Telnyx
+
+📁 Project Structure
 project/
 ├─ tests/ # Test files (\*.spec.js)
 ├─ pages/ # Page Object classes
@@ -17,7 +19,7 @@ git clone https://github.com/aigul-kozak/webdriverio_docker.git
 cd webdriverio_docker
 npm ci
 
-⚠️ If you face issues with EdgeDriver, check connectivity to
+⚠️ If you face issues with EdgeDriver, check connectivity to:
 https://msedgedriver.azureedge.net
 
 🚀 Running Tests Locally
@@ -30,16 +32,19 @@ npm run test:firefox
 npm run test:edge
 
 Run a Specific Test File
-npx wdio run wdio.conf.js --spec ./tests/telnyx.e2e.js
+npx wdio run wdio.conf.js --spec ./tests/specs/telnyx.spec.js
 
 Run with Environment Variables
 BROWSER=firefox BASE_URL=https://telnyx.com npx wdio run ./wdio.conf.js
+
+🧠 Note:
+All browsers run in headless mode by default for CI and Docker environments.
 
 🧭 Fallback Mechanism
 
 If EdgeDriver is unavailable, tests automatically fall back to Chrome.
 
-Allure reports will include a label:
+Allure reports include a browser label:
 
 edge (fallback → chrome) — if Edge failed and Chrome was used
 
@@ -54,17 +59,23 @@ npm run allure:generate
 Open Allure Report Locally
 npm run allure:open
 
-After each test run, results are saved in:
+After each test run:
 
-allure-results/
+Raw results: allure-results/
 
-The HTML report is generated into:
+HTML report: allure-report/
 
-allure-report/
+📁 In CI, Allure reports are generated per browser:
+
+reports/chrome/
+reports/firefox/
+reports/edge/
+
+Locally, reports are combined in allure-report/.
 
 🐳 Run Tests in Docker
 
-Run inside Docker to ensure consistent environments locally and in CI:
+Run inside Docker for consistent environments across all systems:
 
 docker build -t wdio-telnyx .
 docker run -it --rm \
@@ -75,32 +86,36 @@ docker run -it --rm \
 
 This container includes:
 
-Node.js
+Node.js 22
 
-Chrome, Firefox, Edge
+Chrome, Firefox, and Edge
 
-Allure CLI
+Java (for Allure report generation outside container)
+
+💡 Allure CLI is installed in CI workflow, not inside the container.
 
 ⚙️ GitHub Actions CI/CD
 
 The workflow .github/workflows/wdio-e2e-tests.yaml:
 
-Runs tests on Chrome, Firefox, and Edge in parallel.
+Runs tests on Chrome, Firefox, and Edge in parallel
 
-Uploads each Allure report as an artifact.
+Uploads each Allure report as an artifact
 
-Combines them and deploys to GitHub Pages (gh-pages branch).
+Combines and deploys them to GitHub Pages (gh-pages branch)
 
-You can view the latest Allure reports here:
-👉 https://aigul-kozak.github.io/webdriverio_docker/
+👉 View the latest reports:
+https://aigul-kozak.github.io/webdriverio_docker/
 
 ✅ Setup Checklist
 
-Enable Workflow permissions → Read & Write in repo settings.
+Enable Workflow permissions → Read & Write in repository settings
 
-Create an empty gh-pages branch before the first deploy.
+Create an empty gh-pages branch before first deploy
 
-Verify reports/ is added to .gitignore.
+Add reports/ to .gitignore
+
+Ensure public access to Pages is allowed
 
 🧩 Scripts Summary
 Command Description
@@ -109,4 +124,4 @@ npm run test:chrome Run tests in Chrome
 npm run test:firefox Run tests in Firefox
 npm run test:edge Run tests in Edge
 npm run allure:generate Generate Allure HTML report
-npm run allure:open Open the generated Allure report
+npm run allure:open Open generated Allure report
