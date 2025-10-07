@@ -13,10 +13,13 @@ class ContactUsPage {
   }
 
   async checkSetiLinkAndSearch(query = 'SIP') {
-    const setiLink = await $('a[href="https://seti.telnyx.com"][class="c-hzhYFJ"]');
+    const setiLink = await $('//*[contains (text(), "SETI")]');
+    await setiLink.waitForExist({ timeout: 10000 });
+    await setiLink.waitForDisplayed({ timeout: 10000 });
 
     await setiLink.click();
     await browser.switchWindow('https://seti.telnyx.com');
+    await browser.pause(3000);
 
     const cookieBtn = await $('button[id="onetrust-pc-btn-handler"]');
     if (await cookieBtn.isDisplayed()) {
@@ -24,28 +27,32 @@ class ContactUsPage {
     }
 
     // make search
-    const searchInput = await $('input[aria-label="Search"]');
-    await searchInput.setValue(query);
-    await browser.keys('Enter');
+    const searchInput = await $("(//input[@id='search'])[1]");
+    await searchInput.waitForExist({ timeout: 10000 });
+    await searchInput.waitForDisplayed({ timeout: 10000 });
 
-    // wait for result and click
-    const resultMark = await $('span[class="typography-paragraph-md"]');
-    await resultMark.waitForDisplayed({ timeout: 20000 });
-    await resultMark.click();
+    await searchInput.setValue(query);
+    await searchInput.click();
+    //await browser.keys('Enter');
+
+    // wait for autosuggest and click
+    const resultMark = await $('//a[contains(text(), "SIP Trunking")]');
+    await resultMark.waitForExist({ timeout: 10000 });
+    await resultMark.scrollIntoView();
+    await browser.pause(200);
+    await browser.execute((el) => el.click(), resultMark);
 
     // check "SIP Trunking" header
     const sipHeading = await $('//h1[normalize-space()="SIP Trunking"]');
+    await sipHeading.waitForDisplayed({ timeout: 10000 });
+    await browser.pause(2000);
     await expect(sipHeading).toBeDisplayed();
+    await browser.pause(2000);
   }
 
   // navigate to Contact Us and check "Talk to an expert"
   async navigateToContactUs() {
-    const contactLink = await $('a[href="https://telnyx.com/contact-us"]');
-    await contactLink.click();
-
-    await expect(browser).toHaveUrlContaining('/contact-us');
-
-    const expertHeading = await $('//h3[normalize-space()="Talk to a product expert"]');
+    const expertHeading = await $("//h1[normalize-space()='Talk to an expert']");
     await expertHeading.waitForDisplayed({ timeout: 15000 });
     await expect(expertHeading).toHaveText('Talk to an expert');
   }

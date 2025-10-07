@@ -101,22 +101,23 @@ describe('Telnyx', () => {
     ]);
   });
 
-  // describe('Telnyx Contact us', () => {
-  //beforeEach(async () => {
-  //await browser.reloadSession();
-  // await ContactUsPage.open();
-  //await browser.pause(2000);
-  //});
-  //xit.only('Search (Desktop)', async () => {
-  //await browser.setWindowSize(1280, 800);
-  //await ContactUsPage.acceptCookies();
-  //await ContactUsPage.checkSetiLinkAndSearch('SIP');
-  //});
+  describe('Telnyx Contact us', () => {
+    beforeEach(async () => {
+      await browser.reloadSession();
+      await ContactUsPage.open();
+      await browser.pause(2000);
+    });
 
-  // xit('Navigate to Contact us, check Talk to an expert text (Desktop)', async () => {
-  //await browser.setWindowSize(1280, 800);
-  //await ContactUsPage.open();
-  //await ContactUsPage.navigateToContactUs();
-  //});
-  //});
+    it('Search (Desktop)', async () => {
+      await browser.setWindowSize(1280, 800);
+      await ContactUsPage.acceptCookies();
+      await ContactUsPage.checkSetiLinkAndSearch('SIP');
+    });
+
+    it('Navigate to Contact us, check Talk to an expert text (Desktop)', async () => {
+      await browser.setWindowSize(1280, 800);
+      await ContactUsPage.acceptCookies();
+      await ContactUsPage.navigateToContactUs();
+    });
+  });
 });
