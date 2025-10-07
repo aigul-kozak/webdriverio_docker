@@ -1,99 +1,112 @@
-# WebdriverIO Tests for Telnyx Website
-
-This project contains automated E2E tests for Telnyx
-using WebdriverIO, Mocha, and Docker.  
-The tests run on Chrome, Firefox, and Edge locally and in CI/CD.
-
----
-
-## Project Structure
-
+Project Structure
 project/
 ├─ tests/ # Test files (\*.spec.js)
+├─ pages/ # Page Object classes
 ├─ wdio.conf.js # WebdriverIO main config
 ├─ package.json # Dependencies and scripts
 ├─ Dockerfile # Docker image for running tests
-├─ wdio-e2e-tests.yaml # GitHub Actions workflow
+├─ .github/workflows/
+│ └─ wdio-e2e-tests.yaml # GitHub Actions workflow
 └─ README.md
 
----
+⚙️ Installation
 
-## Installation
+Install Node.js v22 or newer.
 
-Install **Node.js v22**.  
-Clone the repository:
-
-```sh
-git clone <your-repo-url>
-cd wdio_tests_telnyx
-Install dependencies:
-
-sh
-Copy code
+git clone https://github.com/aigul-kozak/webdriverio_docker.git
+cd webdriverio_docker
 npm ci
-⚠️ If you face issues with EdgeDriver download, check connectivity to https://msedgedriver.azureedge.net.
 
-Running Tests Locally
-All Tests (default: Chrome)
+⚠️ If you face issues with EdgeDriver, check connectivity to
+https://msedgedriver.azureedge.net
 
-sh
-Copy code
+🚀 Running Tests Locally
+Run All Tests (default: Chrome)
 npm test
-Run Tests on Specific Browsers
 
-sh
-Copy code
+Run Tests on Specific Browsers
 npm run test:chrome
 npm run test:firefox
 npm run test:edge
-Using Environment Variables
 
-sh
-Copy code
+Run a Specific Test File
+npx wdio run wdio.conf.js --spec ./tests/telnyx.e2e.js
+
+Run with Environment Variables
 BROWSER=firefox BASE_URL=https://telnyx.com npx wdio run ./wdio.conf.js
-Fallback Mechanism
-If EdgeDriver cannot be downloaded, tests automatically fallback to Chrome.
+
+🧭 Fallback Mechanism
+
+If EdgeDriver is unavailable, tests automatically fall back to Chrome.
 
 Allure reports will include a label:
 
-"edge (fallback → chrome)" if Edge failed and Chrome was used
+edge (fallback → chrome) — if Edge failed and Chrome was used
 
-"chrome" or "firefox" for normal runs
+chrome or firefox — for normal runs
 
-This ensures tests continue in CI even if Edge is unavailable.
+This ensures the CI/CD pipeline never breaks due to driver issues.
 
-Reporting with Allure
-Generate Allure Report:
-
-sh
-Copy code
+📊 Allure Reporting
+Generate Allure Report
 npm run allure:generate
-Open Allure Report:
 
-sh
-Copy code
+Open Allure Report Locally
 npm run allure:open
-In CI, reports are saved as artifacts and deployed to GitHub Pages.
 
-Docker
-Run tests inside Docker to ensure consistent environment locally and in CI:
+After each test run, results are saved in:
 
-sh
-Copy code
+allure-results/
+
+The HTML report is generated into:
+
+allure-report/
+
+🐳 Run Tests in Docker
+
+Run inside Docker to ensure consistent environments locally and in CI:
+
 docker build -t wdio-telnyx .
 docker run -it --rm \
-  -e BROWSER=chrome \
-  -e BASE_URL=https://telnyx.com \
-  -v $(pwd)/reports:/usr/src/app/allure-report \
-  wdio-telnyx
-The container includes Node.js, Chrome, Firefox, Edge, and Allure CLI.
+ -e BROWSER=chrome \
+ -e BASE_URL=https://telnyx.com \
+ -v $(pwd)/reports:/usr/src/app/allure-report \
+ wdio-telnyx
 
-GitHub Actions CI/CD
-Tests run in a matrix (Chrome, Firefox, Edge).
+This container includes:
 
-Allure reports are uploaded as artifacts and deployed to GitHub Pages branch gh-pages.
+Node.js
 
-Workflow automatically falls back to Chrome if EdgeDriver is unavailable.
+Chrome, Firefox, Edge
 
-Make sure to enable Workflow permissions → Read & Write in repo settings and create an empty gh-pages branch before the first deploy.
-```
+Allure CLI
+
+⚙️ GitHub Actions CI/CD
+
+The workflow .github/workflows/wdio-e2e-tests.yaml:
+
+Runs tests on Chrome, Firefox, and Edge in parallel.
+
+Uploads each Allure report as an artifact.
+
+Combines them and deploys to GitHub Pages (gh-pages branch).
+
+You can view the latest Allure reports here:
+👉 https://aigul-kozak.github.io/webdriverio_docker/
+
+✅ Setup Checklist
+
+Enable Workflow permissions → Read & Write in repo settings.
+
+Create an empty gh-pages branch before the first deploy.
+
+Verify reports/ is added to .gitignore.
+
+🧩 Scripts Summary
+Command Description
+npm test Run all tests (default: Chrome)
+npm run test:chrome Run tests in Chrome
+npm run test:firefox Run tests in Firefox
+npm run test:edge Run tests in Edge
+npm run allure:generate Generate Allure HTML report
+npm run allure:open Open the generated Allure report

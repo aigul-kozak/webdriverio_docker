@@ -75,13 +75,13 @@ export const config = {
   beforeSession: function (config, capabilities, specs) {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
 
-    // Очистка старых результатов
+    // clean old results
     if (fs.existsSync(dir)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
     fs.mkdirSync(dir, { recursive: true });
 
-    // Добавление label браузера
+    // add browser label
     const browserName = process.env.BROWSER || 'chrome';
     if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
       addLabel('browser', 'edge (fallback → chrome)');
