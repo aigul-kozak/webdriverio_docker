@@ -47,26 +47,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build Node.js test image
-        run: docker build -t wdio-telnyx .
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Prepare result folders
         run: |
           mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}
           mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
 
-      - name: Run WDIO tests in Docker
+      - name: Run WDIO tests
         run: |
           echo ">>> Running E2E tests in ${{ matrix.browser }}"
           SELENIUM_HOST="selenium-${{ matrix.browser }}"
           SELENIUM_PORT=4444
-          docker run --rm \
-            -e BROWSER=${{ matrix.browser }} \
-            -e BASE_URL=https://telnyx.com \
-            -e SELENIUM_HOST=$SELENIUM_HOST \
-            -e SELENIUM_PORT=$SELENIUM_PORT \
-            -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
-            wdio-telnyx
+          npx wdio run wdio.conf.js --spec ./tests --browsers ${{ matrix.browser }}
 
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
