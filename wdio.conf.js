@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { addAttachment, addLabel } from '@wdio/allure-reporter';
 
 export const config = {
@@ -22,6 +23,10 @@ export const config = {
 
   services: [],
 
+  hostname: process.env.SELENIUM_HOST || 'localhost',
+  port: parseInt(process.env.SELENIUM_PORT || 4444, 10),
+  path: '/wd/hub',
+
   capabilities: [
     {
       maxInstances: 1,
@@ -31,14 +36,15 @@ export const config = {
         process.env.BROWSER === 'chrome'
           ? {
               args: [
-                '--headless=new',
+                '--headless',
                 '--disable-gpu',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
                 '--remote-allow-origins=*',
                 `--user-data-dir=${
-                  process.env.BROWSER_PROFILE || `/tmp/chrome-${process.pid}-${Date.now()}`
+                  process.env.BROWSER_PROFILE ||
+                  path.join(os.tmpdir(), `chrome-profile-${Date.now()}`)
                 }`,
               ],
             }
@@ -48,6 +54,9 @@ export const config = {
         process.env.BROWSER === 'firefox'
           ? {
               args: ['-headless', '--no-sandbox'],
+              prefs: {
+                'dom.webnotifications.enabled': false,
+              },
             }
           : undefined,
 
@@ -55,12 +64,13 @@ export const config = {
         process.env.BROWSER === 'edge'
           ? {
               args: [
-                '--headless=new',
+                '--headless',
                 '--disable-gpu',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 `--user-data-dir=${
-                  process.env.BROWSER_PROFILE || `/tmp/edge-${process.pid}-${Date.now()}`
+                  process.env.BROWSER_PROFILE ||
+                  path.join(os.tmpdir(), `edge-profile-${Date.now()}`)
                 }`,
               ],
             }
@@ -74,20 +84,11 @@ export const config = {
 
   beforeSession: function (config, capabilities, specs) {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
-
-    // clean old results
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
+    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
     fs.mkdirSync(dir, { recursive: true });
 
-    // add browser label
     const browserName = process.env.BROWSER || 'chrome';
-    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
-      addLabel('browser', 'edge (fallback → chrome)');
-    } else {
-      addLabel('browser', browserName);
-    }
+    addLabel('browser', browserName);
   },
 
   afterTest: async function (test, context, { error }) {

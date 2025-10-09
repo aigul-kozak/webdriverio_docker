@@ -119,5 +119,11 @@ describe('Telnyx', () => {
       await ContactUsPage.acceptCookies();
       await ContactUsPage.navigateToContactUs();
     });
+
+    it('Navigate to Login (Desktop)', async () => {
+      await browser.setWindowSize(1280, 800);
+      await MainPage.acceptCookies();
+      await MainPage.clickLoginButton();
+    });
   });
 });

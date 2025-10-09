@@ -3,6 +3,35 @@ class MainPage {
     await browser.url('/');
   }
 
+  get LoginButton() {
+    return $('a[href="https://portal.telnyx.com"][class="header-md:hidden mchNoDecorate"]');
+  }
+
+  async clickLoginButton() {
+    await this.LoginButton.click();
+    const currentUrl = await browser.getUrl();
+    expect(currentUrl).toContain('/#/login/sign-in');
+  }
+
+  get ExploreOurAIAssistantButton() {
+    return $(
+      'a[href="https://telnyx.com/products/voice-ai-agents"][class$="text-cream mchNoDecorate"]',
+    );
+  }
+  get ProductButton() {
+    return $('a[href="/products"][id="6jHN9mFfQcIhxxfroZW0p8"]');
+  }
+
+  async setUsernameInput(value) {
+    await this.username.addValue(value);
+  }
+  async setPasswordInput(value) {
+    await this.password.addValue(value);
+  }
+  async clickOnLoginBtn() {
+    await this.LoginButton.click();
+  }
+
   async acceptCookies() {
     const acceptBtn = await $('button[id = "onetrust-accept-btn-handler"]');
 

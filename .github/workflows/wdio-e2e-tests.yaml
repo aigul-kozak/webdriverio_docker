@@ -13,116 +13,71 @@ jobs:
       matrix:
         browser: [chrome, firefox, edge]
 
+    services:
+      selenium-chrome:
+        image: selenium/standalone-chrome:134.0-20250323
+        ports:
+          - 4444:4444
+        options: >-
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      selenium-firefox:
+        image: selenium/standalone-firefox:134.0-20250323
+        ports:
+          - 4445:4444
+        options: >-
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      selenium-edge:
+        image: selenium/standalone-edge:134.0-20250323
+        ports:
+          - 4446:4444
+        options: >-
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build Docker image
+      - name: Build Node.js test image
         run: docker build -t wdio-telnyx .
 
-      - name: Prepare folders
+      - name: Prepare result folders
         run: |
           mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}
           mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
 
-      - name: Check EdgeDriver availability
-        if: matrix.browser == 'edge'
+      - name: Run WDIO tests in Docker
         run: |
-          if ! docker run --rm wdio-telnyx sh -c "curl -sSf https://msedgedriver.azureedge.net" >/dev/null; then
-            echo "EdgeDriver unavailable, fallback to Chrome"
-            echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
-          fi
-
-      - name: Run tests in Docker
-        run: |
-          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
+          echo ">>> Running E2E tests in ${{ matrix.browser }}"
+          SELENIUM_HOST="selenium-${{ matrix.browser }}"
+          SELENIUM_PORT=4444
           docker run --rm \
-            -e BROWSER=$BROWSER \
+            -e BROWSER=${{ matrix.browser }} \
+            -e BASE_URL=https://telnyx.com \
+            -e SELENIUM_HOST=$SELENIUM_HOST \
+            -e SELENIUM_PORT=$SELENIUM_PORT \
             -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
             wdio-telnyx
-
-      - name: List Allure results (debug)
-        run: |
-          echo ">>> Listing contents of results folder:"
-          ls -lR results/${{ matrix.browser }}
 
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
 
       - name: Generate Allure HTML report
         run: |
-          echo ">>> Generating Allure report from results/${{ matrix.browser }}"
+          echo ">>> Generating Allure report for ${{ matrix.browser }}"
           npx allure generate results/${{ matrix.browser }} --clean -o reports/${{ matrix.browser }}
-
-      - name: List generated Allure report (debug)
-        run: |
-          echo ">>> Listing contents of generated report folder:"
-          ls -lR reports/${{ matrix.browser }}
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-${{ matrix.browser }}
           path: reports/${{ matrix.browser }}
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: e2e-tests
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # Скачиваем все артефакты в ./reports
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./reports
-          merge-multiple: false
-
-      # Проверяем содержимое перед деплоем
-      - name: List reports folder before deploy
-        run: ls -lR ./reports
-
-      # Создаём индекс с динамическими ссылками
-      - name: Create root index.html
-        run: |
-          cat > ./reports/index.html <<'EOF'
-          <!DOCTYPE html>
-           <html lang="en">
-          <head>
-          <meta charset="UTF-8">
-          <title>Allure Reports</title>
-          <style>
-          body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-          h1 { text-align: center; color: #333; }
-          ul { list-style: none; padding: 0; max-width: 400px; margin: 40px auto; }
-          li { margin: 15px 0; }
-          a { display: flex; align-items: center; padding: 12px 18px; background: white;
-            border-radius: 10px; text-decoration: none; font-size: 18px; color: #333;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-          a:hover { background: #eef3ff; transform: translateY(-2px); }
-          </style>
-          </head>
-          <body>
-          <h1>Allure Reports</h1>
-          <ul>
-          EOF
-          # Генерируем ссылки только для существующих папок
-          for browser in chrome firefox edge; do
-          folder="allure-report-$browser"
-          if [ -d "./reports/$folder" ]; then
-          echo "  <li><a href=\"$folder/index.html\">${browser^} Report</a></li>" >> ./reports/index.html
-          fi
-          done
-
-          # Закрываем html
-            echo "  </ul></body></html>" >> ./reports/index.html
-
-      # Деплой на gh-pages
-      - name: Deploy Allure reports to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./reports
-          keep_files: false

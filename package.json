@@ -4,10 +4,10 @@
   "description": "WebdriverIO tests for Telnyx website",
   "main": "index.js",
   "scripts": {
-    "test": "wdio run ./wdio.conf.js",
-    "test:chrome": "BROWSER=chrome npx wdio run ./wdio.conf.js",
-    "test:firefox": "BROWSER=firefox npx wdio run ./wdio.conf.js",
-    "test:edge": "BROWSER=edge npx wdio run ./wdio.conf.js",
+    "test": "cross-env BROWSER=chrome npx wdio run ./wdio.conf.js",
+    "test:chrome": "cross-env BROWSER=chrome npx wdio run ./wdio.conf.js",
+    "test:firefox": "cross-env BROWSER=firefox npx wdio run ./wdio.conf.js",
+    "test:edge": "cross-env BROWSER=edge npx wdio run ./wdio.conf.js",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report"
   },
@@ -21,6 +21,7 @@
     "@wdio/selenium-standalone-service": "^8.7.0",
     "@wdio/spec-reporter": "^9.20.0",
     "chromedriver": "^117.0.0",
+    "cross-env": "^10.1.0",
     "geckodriver": "^4.3.2",
     "webdriverio": "^8.37.0"
   },
