@@ -1,19 +1,19 @@
-# Use official image WebdriverIO
-FROM webdriverio/node-base:latest
+# Use official lightweight Node.js image
+FROM node:22-alpine
 
-# Working directory inside container 
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy dependancies and install them 
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --omit=dev
 
-# Copy all project 
+# Copy project files
 COPY . .
 
-# Install environment variables 
+# Environment setup
 ENV NODE_ENV=production
 ENV BASE_URL=https://telnyx.com
 
-# Run tests 
+# Run tests by default
 CMD ["npx", "wdio", "run", "./wdio.conf.js"]
