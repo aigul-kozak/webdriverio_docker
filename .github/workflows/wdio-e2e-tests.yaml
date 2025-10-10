@@ -75,26 +75,50 @@ jobs:
           path: ./reports
           merge-multiple: false
 
-      # Deploy Allure reports to GitHub Pages
-      - name: Generate root index.html for Allure reports
+      # Generate and deploy Allure reports per browser
+      - name: Generate Allure reports per browser
+        run: |
+          for browser in chrome firefox edge; do
+          if [ -d "results/$browser" ]; then
+          echo ">>> Generating Allure report for $browser"
+          npx allure generate results/$browser --clean -o reports/$browser
+          fi
+          done
+
+      - name: Create root index.html with buttons
         run: |
           cat <<EOF > ./reports/index.html
           <!DOCTYPE html>
           <html lang="en">
           <head>
-            <meta charset="UTF-8">
-            <title>Allure Test Reports</title>
+          <meta charset="UTF-8">
+          <title>Allure Test Reports</title>
+          <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+          h1 { margin-bottom: 40px; }
+          .btn {
+          display: inline-block;
+          padding: 15px 30px;
+          margin: 10px;
+          font-size: 18px;
+          text-decoration: none;
+          color: #fff;
+          background-color: #007bff;
+          border-radius: 6px;
+          transition: background-color 0.3s;
+          }
+          .btn:hover { background-color: #0056b3; }
+          </style>
           </head>
           <body>
-            <h1>Allure Test Reports</h1>
-            <ul>
-              <li><a href="./chrome/index.html" target="_blank">Chrome</a></li>
-              <li><a href="./firefox/index.html" target="_blank">Firefox</a></li>
-              <li><a href="./edge/index.html" target="_blank">Edge</a></li>
-            </ul>
+          <h1>Allure Test Reports</h1>
+          <a class="btn" href="./chrome/index.html" target="_blank">Chrome</a>
+          <a class="btn" href="./firefox/index.html" target="_blank">Firefox</a>
+          <a class="btn" href="./edge/index.html" target="_blank">Edge</a>
           </body>
           </html>
           EOF
+
       - name: Deploy Allure reports to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
