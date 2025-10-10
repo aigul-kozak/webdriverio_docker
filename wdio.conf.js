@@ -28,19 +28,34 @@ export const config = {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
-      // Chrome headless options
+      // Chrome headless with unique user-data-dir
       'goog:chromeOptions':
-        process.env.BROWSER === 'chrome' ? { args: ['--headless=new'] } : undefined,
+        process.env.BROWSER === 'chrome'
+          ? {
+              args: ['--headless=new', `--user-data-dir=/tmp/chrome-profile-${Date.now()}`],
+              prefs: { 'profile.password_manager_leak_detection': false },
+            }
+          : undefined,
 
-      // Firefox headless options
-      'moz:firefoxOptions': process.env.BROWSER === 'firefox' ? { args: ['-headless'] } : undefined,
+      // Firefox headless with unique profile
+      'moz:firefoxOptions':
+        process.env.BROWSER === 'firefox'
+          ? {
+              args: ['-headless'],
+              profile: `/tmp/firefox-profile-${Date.now()}`,
+            }
+          : undefined,
 
-      // Edge headless options
-      'ms:edgeOptions': process.env.BROWSER === 'edge' ? { args: ['--headless=new'] } : undefined,
+      // Edge headless with unique user-data-dir
+      'ms:edgeOptions':
+        process.env.BROWSER === 'edge'
+          ? {
+              args: ['--headless=new', `--user-data-dir=/tmp/edge-profile-${Date.now()}`],
+            }
+          : undefined,
     },
   ],
 
-  // Base URL for tests
   baseUrl: process.env.BASE_URL || 'https://telnyx.com',
   waitforTimeout: 10000,
   mochaOpts: { timeout: 60000 },
