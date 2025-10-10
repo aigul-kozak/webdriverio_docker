@@ -37,6 +37,7 @@ jobs:
           BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           docker run --rm \
             -e BROWSER=$BROWSER \
+            -e ALLURE_RESULTS=/usr/src/app/allure-results \
             -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
             wdio-telnyx
 

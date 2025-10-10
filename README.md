@@ -19,7 +19,7 @@ git clone https://github.com/aigul-kozak/webdriverio_docker.git
 cd webdriverio_docker
 npm ci
 
-Running Tests Locally
+Running Tests Locally (Note for Local Runs: Recommended to use Windows CMD / PowerShell for local execution.If running via Bash (Linux, macOS, WSL2), Chrome and Firefox work reliably, but Edge may fail if EdgeDriver is missing.In Bash, fallback from Edge → Chrome is not automatic; manually set BROWSER=chrome if needed):
 Run All Tests (default: Chrome)
 npm test
 Run Tests on Specific Browsers
@@ -56,6 +56,7 @@ reports/chrome/
 reports/firefox/
 reports/edge/
 Locally, reports are combined in allure-report/.
+Note: Do not create index.html manually — the Allure CLI generates the report structure automatically.
 
 Run Tests in Docker
 Build Docker Image

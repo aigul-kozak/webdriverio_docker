@@ -21,26 +21,25 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
 # Install browser drivers globally
 RUN npm install -g chromedriver geckodriver edgedriver --save-dev
 
-# Java environment (required for Allure CLI outside the container)
+# Java environment
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy dependencies and install project
+# Install project dependencies
 COPY package*.json ./
-RUN npm ci && npm install --save-dev cross-env
+RUN npm ci
 COPY . .
 
-# Run tests (Allure HTML generation happens in CI)
+# Run tests
 CMD ["sh", "-c", "\
-    echo '>>> Cleaning temporary browser profiles...'; \
-    rm -rf /tmp/chrome-* /tmp/edge-* || true; \
+    echo '>>> Preparing browser profile...'; \
     if [ \"$BROWSER\" = \"chrome\" ] || [ \"$BROWSER\" = \"edge\" ]; then \
     export BROWSER_PROFILE=/tmp/${BROWSER}-profile-$RANDOM-$RANDOM-$RANDOM; \
     mkdir -p $BROWSER_PROFILE; \
     fi; \
     echo '>>> Running tests in $BROWSER with profile $BROWSER_PROFILE'; \
-    npx cross-env BROWSER=$BROWSER npx wdio run ./wdio.conf.js \
+    npx wdio run ./wdio.conf.js \
     "]

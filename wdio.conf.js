@@ -5,7 +5,6 @@ import { addAttachment, addLabel } from '@wdio/allure-reporter';
 export const config = {
   runner: 'local',
   framework: 'mocha',
-
   specs: ['./tests/**/*.spec.js'],
   logLevel: 'info',
 
@@ -28,7 +27,6 @@ export const config = {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
-      // Chrome options
       'goog:chromeOptions':
         process.env.BROWSER === 'chrome'
           ? {
@@ -38,7 +36,6 @@ export const config = {
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
-                '--remote-allow-origins=*',
                 `--user-data-dir=${
                   process.env.BROWSER_PROFILE || `/tmp/chrome-${process.pid}-${Date.now()}`
                 }`,
@@ -46,15 +43,9 @@ export const config = {
             }
           : undefined,
 
-      // Firefox options
       'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox'
-          ? {
-              args: ['-headless', '--no-sandbox'],
-            }
-          : undefined,
+        process.env.BROWSER === 'firefox' ? { args: ['-headless', '--no-sandbox'] } : undefined,
 
-      // Edge options
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
           ? {
@@ -78,14 +69,10 @@ export const config = {
 
   beforeSession: function () {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
-
-    // Clean up old Allure results
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
+    // Ensure results folder exists, do not delete
     fs.mkdirSync(dir, { recursive: true });
 
-    // Add Allure label for browser (including fallback)
+    // Add browser label
     const browserName = process.env.BROWSER || 'chrome';
     if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
       addLabel('browser', 'edge (fallback → chrome)');
@@ -95,7 +82,6 @@ export const config = {
   },
 
   afterTest: async function (test, context, { error }) {
-    // Take a screenshot on failure
     if (error) {
       const screenshot = await browser.takeScreenshot();
       addAttachment(
