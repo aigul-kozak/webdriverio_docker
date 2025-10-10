@@ -1,5 +1,0 @@
-{
-  "error": "no such element",
-  "message": "no such element: Unable to locate element: {\"method\":\"xpath\",\"selector\":\"//h1[normalize-space()=\"SIP Trunking\"]\"}\n  (Session info: chrome=141.0.7390.76)",
-  "stacktrace": "#0 0x55cbf09d94ca <unknown>\n#1 0x55cbf0458566 <unknown>\n#2 0x55cbf04aa68d <unknown>\n#3 0x55cbf04aa921 <unknown>\n#4 0x55cbf04f8e94 <unknown>\n#5 0x55cbf04d065d <unknown>\n#6 0x55cbf04f6328 <unknown>\n#7 0x55cbf04d0403 <unknown>\n#8 0x55cbf049cb02 <unknown>\n#9 0x55cbf049d7c1 <unknown>\n#10 0x55cbf099d298 <unknown>\n#11 0x55cbf09a10ff <unknown>\n#12 0x55cbf0984729 <unknown>\n#13 0x55cbf09a1ca5 <unknown>\n#14 0x55cbf0969f8f <unknown>\n#15 0x55cbf09c6308 <unknown>\n#16 0x55cbf09c64e3 <unknown>\n#17 0x55cbf09d8463 <unknown>\n#18 0x7f545a87eea7 start_thread\n"
-}
