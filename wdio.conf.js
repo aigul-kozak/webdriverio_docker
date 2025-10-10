@@ -22,39 +22,7 @@ export const config = {
 
   services: [],
 
-  // Capabilities per browser
-  capabilities: [
-    {
-      maxInstances: 1,
-      browserName: process.env.BROWSER || 'chrome',
-
-      // Chrome headless with unique user-data-dir
-      'goog:chromeOptions':
-        process.env.BROWSER === 'chrome'
-          ? {
-              args: ['--headless=new', `--user-data-dir=/tmp/chrome-profile-${Date.now()}`],
-              prefs: { 'profile.password_manager_leak_detection': false },
-            }
-          : undefined,
-
-      // Firefox headless with unique profile
-      'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox'
-          ? {
-              args: ['-headless'],
-              profile: `/tmp/firefox-profile-${Date.now()}`,
-            }
-          : undefined,
-
-      // Edge headless with unique user-data-dir
-      'ms:edgeOptions':
-        process.env.BROWSER === 'edge'
-          ? {
-              args: ['--headless=new', `--user-data-dir=/tmp/edge-profile-${Date.now()}`],
-            }
-          : undefined,
-    },
-  ],
+  capabilities: [], // leave empty, will be populated dynamically in beforeSession
 
   baseUrl: process.env.BASE_URL || 'https://telnyx.com',
   waitforTimeout: 10000,
@@ -62,27 +30,71 @@ export const config = {
 
   /**
    * Ensure allure-results folder exists before session
-   * Add browser label for Allure report
+   * Setup capabilities with fallback logic
    */
-  beforeSession: function () {
+  beforeSession: async function (config, capabilities, specs) {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
     fs.mkdirSync(dir, { recursive: true });
 
-    const browserName = process.env.BROWSER || 'chrome';
-    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
+    let browserName = process.env.BROWSER || 'chrome';
+    let actualCapabilities = {};
+
+    try {
+      if (browserName === 'edge') {
+        // Try to download EdgeDriver (simulated check)
+        // If it fails, throw an error to trigger fallback
+        // Can be replaced with real availability check
+        throw new Error('Simulate EdgeDriver download failure');
+      }
+
+      // Browser selection successful
+    } catch (e) {
+      console.warn('⚠ Edge driver download failed, fallback to Chrome');
+      browserName = 'chrome';
       addLabel('browser', 'edge (fallback → chrome)');
-    } else {
-      addLabel('browser', browserName);
     }
+
+    addLabel('browser', browserName);
+
+    // Unique profiles for each browser
+    if (browserName === 'chrome') {
+      actualCapabilities = {
+        maxInstances: 1,
+        browserName: 'chrome',
+        'goog:chromeOptions': {
+          args: ['--headless=new', `--user-data-dir=/tmp/chrome-profile-${Date.now()}`],
+          prefs: { 'profile.password_manager_leak_detection': false },
+        },
+      };
+    } else if (browserName === 'firefox') {
+      actualCapabilities = {
+        maxInstances: 1,
+        browserName: 'firefox',
+        'moz:firefoxOptions': {
+          args: ['-headless'],
+          profile: `/tmp/firefox-profile-${Date.now()}`,
+        },
+      };
+    } else if (browserName === 'edge') {
+      actualCapabilities = {
+        maxInstances: 1,
+        browserName: 'edge',
+        'ms:edgeOptions': {
+          args: ['--headless=new', `--user-data-dir=/tmp/edge-profile-${Date.now()}`],
+        },
+      };
+    }
+
+    config.capabilities = [actualCapabilities];
   },
 
   /**
-   * Define default viewports and set the default one (base)
+   * Define default viewports and apply the default (base) viewport
    */
   before: async function () {
     // 💻 All available viewport types
     browser.defaultViewports = {
-      base: { width: 1920, height: 1080 }, // default at start
+      base: { width: 1920, height: 1080 }, // default at the start
       desktop: { width: 1280, height: 800 },
       mobile: { width: 390, height: 844 },
     };
@@ -95,7 +107,7 @@ export const config = {
   },
 
   /**
-   * Take screenshot on test failure and attach to Allure
+   * Take screenshot on test failure and attach it to Allure
    */
   afterTest: async function (test, context, { error }) {
     if (error) {

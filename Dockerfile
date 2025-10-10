@@ -40,6 +40,9 @@ COPY . .
 # Create default results folder
 RUN mkdir -p ./allure-results
 
+# Clean old Chrome/Edge profiles to avoid conflicts
+RUN rm -rf /tmp/chrome-profile-* /tmp/edge-profile-*
+
 # Run tests
 CMD ["sh", "-c", "\
     echo '>>> Preparing browser profile...'; \
