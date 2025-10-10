@@ -76,6 +76,25 @@ jobs:
           merge-multiple: false
 
       # Deploy Allure reports to GitHub Pages
+      - name: Generate root index.html for Allure reports
+        run: |
+          cat <<EOF > ./reports/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>Allure Test Reports</title>
+          </head>
+          <body>
+            <h1>Allure Test Reports</h1>
+            <ul>
+              <li><a href="./chrome/index.html" target="_blank">Chrome</a></li>
+              <li><a href="./firefox/index.html" target="_blank">Firefox</a></li>
+              <li><a href="./edge/index.html" target="_blank">Edge</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
       - name: Deploy Allure reports to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

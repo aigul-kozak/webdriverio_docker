@@ -43,20 +43,20 @@ uses the official @wdio/allure-reporter package
 edge (fallback → chrome) — if Edge failed and Chrome was used
 chrome or firefox — for normal runs
 This ensures the CI/CD pipeline never breaks due to driver issues.
+Note: Do not create index.html manually — the Allure CLI generates the report structure automatically.
 
-Allure Reporting
 Generate and View Allure Report Locally
 npm run allure:generate
 npm run allure:open
 Results after each test run:
 Raw results: allure-results/
 HTML report: allure-report/
+
 In CI, Allure reports are generated per browser:
 reports/chrome/
 reports/firefox/
 reports/edge/
 Locally, reports are combined in allure-report/.
-Note: Do not create index.html manually — the Allure CLI generates the report structure automatically.
 
 Run Tests in Docker
 Build Docker Image
