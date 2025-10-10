@@ -22,57 +22,37 @@ export const config = {
 
   services: [],
 
+  // Capabilities per browser
   capabilities: [
     {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
+      // Chrome headless options
       'goog:chromeOptions':
-        process.env.BROWSER === 'chrome'
-          ? {
-              args: [
-                '--headless=new',
-                '--disable-gpu',
-                '--no-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-extensions',
-                `--user-data-dir=${
-                  process.env.BROWSER_PROFILE || `/tmp/chrome-${process.pid}-${Date.now()}`
-                }`,
-              ],
-            }
-          : undefined,
+        process.env.BROWSER === 'chrome' ? { args: ['--headless=new'] } : undefined,
 
-      'moz:firefoxOptions':
-        process.env.BROWSER === 'firefox' ? { args: ['-headless', '--no-sandbox'] } : undefined,
+      // Firefox headless options
+      'moz:firefoxOptions': process.env.BROWSER === 'firefox' ? { args: ['-headless'] } : undefined,
 
-      'ms:edgeOptions':
-        process.env.BROWSER === 'edge'
-          ? {
-              args: [
-                '--headless=new',
-                '--disable-gpu',
-                '--no-sandbox',
-                '--disable-dev-shm-usage',
-                `--user-data-dir=${
-                  process.env.BROWSER_PROFILE || `/tmp/edge-${process.pid}-${Date.now()}`
-                }`,
-              ],
-            }
-          : undefined,
+      // Edge headless options
+      'ms:edgeOptions': process.env.BROWSER === 'edge' ? { args: ['--headless=new'] } : undefined,
     },
   ],
 
+  // Base URL for tests
   baseUrl: process.env.BASE_URL || 'https://telnyx.com',
   waitforTimeout: 10000,
   mochaOpts: { timeout: 60000 },
 
+  /**
+   * Ensure allure-results folder exists before session
+   * Add browser label for Allure report
+   */
   beforeSession: function () {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
-    // Ensure results folder exists, do not delete
     fs.mkdirSync(dir, { recursive: true });
 
-    // Add browser label
     const browserName = process.env.BROWSER || 'chrome';
     if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
       addLabel('browser', 'edge (fallback → chrome)');
@@ -81,6 +61,9 @@ export const config = {
     }
   },
 
+  /**
+   * Take screenshot on test failure and attach to Allure
+   */
   afterTest: async function (test, context, { error }) {
     if (error) {
       const screenshot = await browser.takeScreenshot();

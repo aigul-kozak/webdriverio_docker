@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         browser: [chrome, firefox, edge]
+        platform: [desktop, mobile]
 
     steps:
       - uses: actions/checkout@v3
@@ -21,44 +22,33 @@ jobs:
 
       - name: Prepare folders
         run: |
-          mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}
-          mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
-
-      - name: Check EdgeDriver availability
-        if: matrix.browser == 'edge'
-        run: |
-          if ! docker run --rm wdio-telnyx sh -c "curl -sSf https://msedgedriver.azureedge.net" >/dev/null; then
-            echo "EdgeDriver unavailable, fallback to Chrome"
-            echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
-          fi
+          mkdir -p ${{ github.workspace }}/results/${{ matrix.platform }}
+          mkdir -p ${{ github.workspace }}/reports/${{ matrix.platform }}
 
       - name: Run tests in Docker
         run: |
-          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
           docker run --rm \
-            -e BROWSER=$BROWSER \
+            -e BROWSER=${{ matrix.browser }} \
+            -e PLATFORM=${{ matrix.platform }} \
             -e ALLURE_RESULTS=/usr/src/app/allure-results \
-            -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
+            -v ${{ github.workspace }}/results/${{ matrix.platform }}:/usr/src/app/allure-results \
             wdio-telnyx
 
-      - name: List Allure results (debug)
-        run: |
-          echo ">>> Listing contents of results folder:"
-          ls -lR results/${{ matrix.browser }}
+      - name: List Allure results
+        run: ls -lR results/${{ matrix.platform }}
 
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
 
-      - name: Generate Allure HTML report
+      - name: Generate Allure HTML report per platform
         run: |
-          echo ">>> Generating Allure report from results/${{ matrix.browser }}"
-          npx allure generate results/${{ matrix.browser }} --clean -o reports/${{ matrix.browser }}
+          npx allure generate results/${{ matrix.platform }} --clean -o reports/${{ matrix.platform }}
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report-${{ matrix.browser }}
-          path: reports/${{ matrix.browser }}
+          name: allure-report-${{ matrix.platform }}
+          path: reports/${{ matrix.platform }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -68,49 +58,39 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Download all artifacts into ./reports
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./reports
           merge-multiple: false
 
-      # Generate and deploy Allure reports per browser with root index.html
-      - name: Generate Allure reports per browser
-        run: |
-          for browser in chrome firefox edge; do
-          echo ">>> Generating Allure report for $browser"
-          npx allure generate results/$browser --clean -o reports/$browser
-          done
-
-      - name: Create root index.html with buttons
+      - name: Create root index.html with buttons for platforms
         run: |
           cat <<EOF > ./reports/index.html
           <!DOCTYPE html>
           <html lang="en">
           <head>
-          <meta charset="UTF-8">
-          <title>Allure Test Reports</title>
-          <style>
-          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-          a.button {
-          display: inline-block;
-          padding: 12px 24px;
-          margin: 10px;
-          font-size: 18px;
-          text-decoration: none;
-          color: white;
-          background-color: #007bff;
-          border-radius: 6px;
-          }
-          a.button:hover { background-color: #0056b3; }
-          </style>
+            <meta charset="UTF-8">
+            <title>Allure Test Reports</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+              a.button {
+                display: inline-block;
+                padding: 12px 24px;
+                margin: 10px;
+                font-size: 18px;
+                text-decoration: none;
+                color: white;
+                background-color: #007bff;
+                border-radius: 6px;
+              }
+              a.button:hover { background-color: #0056b3; }
+            </style>
           </head>
           <body>
-          <h1>Allure Test Reports</h1>
-          <a class="button" href="./chrome/index.html" target="_blank">Chrome</a>
-          <a class="button" href="./firefox/index.html" target="_blank">Firefox</a>
-          <a class="button" href="./edge/index.html" target="_blank">Edge</a>
+            <h1>Allure Test Reports</h1>
+            <a class="button" href="./desktop/index.html" target="_blank">Desktop</a>
+            <a class="button" href="./mobile/index.html" target="_blank">Mobile</a>
           </body>
           </html>
           EOF
