@@ -1,0 +1,45 @@
+{
+  "script": "<script> [152 bytes]",
+  "args": [
+    {
+      "sessionId": "4a88d930-df93-4096-9725-441baa13839c",
+      "elementId": "cbde2f15-e5f3-41cc-976b-360b40154290",
+      "element-6066-11e4-a52e-4f735466cecf": "cbde2f15-e5f3-41cc-976b-360b40154290",
+      "selector": "p=Legal",
+      "parent": {
+        "sessionId": "4a88d930-df93-4096-9725-441baa13839c",
+        "capabilities": {
+          "acceptInsecureCerts": false,
+          "browserName": "firefox",
+          "browserVersion": "140.3.1",
+          "moz:accessibilityChecks": false,
+          "moz:buildID": "20250922173505",
+          "moz:geckodriverVersion": "0.36.0",
+          "moz:headless": true,
+          "moz:platformVersion": "6.11.0-1018-azure",
+          "moz:processID": 3424,
+          "moz:profile": "/tmp/rust_mozprofileq7fq4m",
+          "moz:shutdownTimeout": 60000,
+          "moz:webdriverClick": true,
+          "moz:windowless": false,
+          "pageLoadStrategy": "normal",
+          "platformName": "linux",
+          "proxy": {},
+          "setWindowRect": true,
+          "strictFileInteractability": false,
+          "timeouts": {
+            "implicit": 0,
+            "pageLoad": 300000,
+            "script": 30000
+          },
+          "unhandledPromptBehavior": "ignore",
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+          "webSocketUrl": "ws://127.0.0.1:36263/session/4a88d930-df93-4096-9725-441baa13839c",
+          "wdio:driverPID": 84
+        }
+      },
+      "isReactElement": false,
+      "isShadowElement": false
+    }
+  ]
+}

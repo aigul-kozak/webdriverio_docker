@@ -1,0 +1,48 @@
+{
+  "script": "<script> [152 bytes]",
+  "args": [
+    {
+      "sessionId": "89e17d9bf75f3a24696b9f51b2007d34",
+      "elementId": "f.81E9B88C77F1A96DF2CF04A91EC5ECFA.d.71D7BD06C5DF76BC7DAFCB8FF8DABD5F.e.75",
+      "element-6066-11e4-a52e-4f735466cecf": "f.81E9B88C77F1A96DF2CF04A91EC5ECFA.d.71D7BD06C5DF76BC7DAFCB8FF8DABD5F.e.75",
+      "selector": "p=Compare",
+      "parent": {
+        "sessionId": "89e17d9bf75f3a24696b9f51b2007d34",
+        "capabilities": {
+          "acceptInsecureCerts": false,
+          "browserName": "chrome",
+          "browserVersion": "141.0.7390.76",
+          "chrome": {
+            "chromedriverVersion": "141.0.7390.76 (d6fcfbb51aac4df61d06692d4a62fd8b9aaf3c3a-refs/branch-heads/7390_65@{#3})",
+            "userDataDir": "/tmp/chrome-profile---"
+          },
+          "fedcm:accounts": true,
+          "goog:chromeOptions": {
+            "debuggerAddress": "localhost:34137"
+          },
+          "networkConnectionEnabled": false,
+          "pageLoadStrategy": "normal",
+          "platformName": "linux",
+          "proxy": {},
+          "setWindowRect": true,
+          "strictFileInteractability": false,
+          "timeouts": {
+            "implicit": 0,
+            "pageLoad": 300000,
+            "script": 30000
+          },
+          "unhandledPromptBehavior": "ignore",
+          "webSocketUrl": "ws://localhost:44045/session/89e17d9bf75f3a24696b9f51b2007d34",
+          "webauthn:extension:credBlob": true,
+          "webauthn:extension:largeBlob": true,
+          "webauthn:extension:minPinLength": true,
+          "webauthn:extension:prf": true,
+          "webauthn:virtualAuthenticators": true,
+          "wdio:driverPID": 99
+        }
+      },
+      "isReactElement": false,
+      "isShadowElement": false
+    }
+  ]
+}
