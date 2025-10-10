@@ -75,14 +75,12 @@ jobs:
           path: ./reports
           merge-multiple: false
 
-      # Generate and deploy Allure reports per browser
+      # Generate and deploy Allure reports per browser with root index.html
       - name: Generate Allure reports per browser
         run: |
           for browser in chrome firefox edge; do
-          if [ -d "results/$browser" ]; then
           echo ">>> Generating Allure report for $browser"
           npx allure generate results/$browser --clean -o reports/$browser
-          fi
           done
 
       - name: Create root index.html with buttons
@@ -94,27 +92,25 @@ jobs:
           <meta charset="UTF-8">
           <title>Allure Test Reports</title>
           <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-          h1 { margin-bottom: 40px; }
-          .btn {
+          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+          a.button {
           display: inline-block;
-          padding: 15px 30px;
+          padding: 12px 24px;
           margin: 10px;
           font-size: 18px;
           text-decoration: none;
-          color: #fff;
+          color: white;
           background-color: #007bff;
           border-radius: 6px;
-          transition: background-color 0.3s;
           }
-          .btn:hover { background-color: #0056b3; }
+          a.button:hover { background-color: #0056b3; }
           </style>
           </head>
           <body>
           <h1>Allure Test Reports</h1>
-          <a class="btn" href="./chrome/index.html" target="_blank">Chrome</a>
-          <a class="btn" href="./firefox/index.html" target="_blank">Firefox</a>
-          <a class="btn" href="./edge/index.html" target="_blank">Edge</a>
+          <a class="button" href="./chrome/index.html" target="_blank">Chrome</a>
+          <a class="button" href="./firefox/index.html" target="_blank">Firefox</a>
+          <a class="button" href="./edge/index.html" target="_blank">Edge</a>
           </body>
           </html>
           EOF
