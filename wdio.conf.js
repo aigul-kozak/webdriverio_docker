@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import { addAttachment, addLabel } from '@wdio/allure-reporter';
 
 export const config = {
   runner: 'local',
   framework: 'mocha',
+
   specs: ['./tests/**/*.spec.js'],
   logLevel: 'info',
 
@@ -23,54 +23,48 @@ export const config = {
 
   services: [],
 
-  hostname: process.env.SELENIUM_HOST || 'localhost',
-  port: parseInt(process.env.SELENIUM_PORT || 4444, 10),
-  path: '/wd/hub',
-
   capabilities: [
     {
       maxInstances: 1,
       browserName: process.env.BROWSER || 'chrome',
 
+      // Chrome options
       'goog:chromeOptions':
         process.env.BROWSER === 'chrome'
           ? {
               args: [
-                '--headless',
+                '--headless=new',
                 '--disable-gpu',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-extensions',
                 '--remote-allow-origins=*',
                 `--user-data-dir=${
-                  process.env.BROWSER_PROFILE ||
-                  path.join(os.tmpdir(), `chrome-profile-${Date.now()}`)
+                  process.env.BROWSER_PROFILE || `/tmp/chrome-${process.pid}-${Date.now()}`
                 }`,
               ],
             }
           : undefined,
 
+      // Firefox options
       'moz:firefoxOptions':
         process.env.BROWSER === 'firefox'
           ? {
               args: ['-headless', '--no-sandbox'],
-              prefs: {
-                'dom.webnotifications.enabled': false,
-              },
             }
           : undefined,
 
+      // Edge options
       'ms:edgeOptions':
         process.env.BROWSER === 'edge'
           ? {
               args: [
-                '--headless',
+                '--headless=new',
                 '--disable-gpu',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 `--user-data-dir=${
-                  process.env.BROWSER_PROFILE ||
-                  path.join(os.tmpdir(), `edge-profile-${Date.now()}`)
+                  process.env.BROWSER_PROFILE || `/tmp/edge-${process.pid}-${Date.now()}`
                 }`,
               ],
             }
@@ -82,16 +76,26 @@ export const config = {
   waitforTimeout: 10000,
   mochaOpts: { timeout: 60000 },
 
-  beforeSession: function (config, capabilities, specs) {
+  beforeSession: function () {
     const dir = process.env.ALLURE_RESULTS || './allure-results';
-    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+
+    // Clean up old Allure results
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
     fs.mkdirSync(dir, { recursive: true });
 
+    // Add Allure label for browser (including fallback)
     const browserName = process.env.BROWSER || 'chrome';
-    addLabel('browser', browserName);
+    if (browserName === 'chrome' && process.env.FALLBACK_BROWSER === 'chrome') {
+      addLabel('browser', 'edge (fallback → chrome)');
+    } else {
+      addLabel('browser', browserName);
+    }
   },
 
   afterTest: async function (test, context, { error }) {
+    // Take a screenshot on failure
     if (error) {
       const screenshot = await browser.takeScreenshot();
       addAttachment(

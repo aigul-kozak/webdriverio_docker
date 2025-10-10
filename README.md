@@ -38,7 +38,8 @@ In CI/CD (GitHub Actions), if EdgeDriver is unavailable, tests automatically fal
 Note for local runs: The Edge → Chrome fallback is not implemented locally. If EdgeDriver cannot be downloaded, you will need to manually run tests in Chrome using:
 npm run test:chrome
 
-Allure reports include a browser label:
+Allure reports:
+uses the official @wdio/allure-reporter package
 edge (fallback → chrome) — if Edge failed and Chrome was used
 chrome or firefox — for normal runs
 This ensures the CI/CD pipeline never breaks due to driver issues.

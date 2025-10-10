@@ -11,68 +11,46 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        browser: [chrome]
-
-    services:
-      selenium-chrome:
-        image: selenium/standalone-chrome:134.0-20250323
-        ports:
-          - 4444:4444
-        options: >-
-          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      selenium-firefox:
-        image: selenium/standalone-firefox:134.0-20250323
-        ports:
-          - 4445:4444
-        options: >-
-          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      selenium-edge:
-        image: selenium/standalone-edge:134.0-20250323
-        ports:
-          - 4446:4444
-        options: >-
-          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        browser: [chrome, firefox, edge]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
+      - name: Build Docker image
+        run: docker build -t wdio-telnyx .
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prepare result folders
+      - name: Prepare folders
         run: |
           mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}
           mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
 
-      - name: Run WDIO tests
+      - name: Check EdgeDriver availability
+        if: matrix.browser == 'edge'
         run: |
-          echo ">>> Running E2E tests in ${{ matrix.browser }}"
-          SELENIUM_HOST="selenium-${{ matrix.browser }}"
-          SELENIUM_PORT=4444
-          npx wdio run wdio.conf.js --spec ./tests --browsers ${{ matrix.browser }}
+          if ! docker run --rm wdio-telnyx sh -c "curl -sSf https://msedgedriver.azureedge.net" >/dev/null; then
+            echo "EdgeDriver unavailable, fallback to Chrome"
+            echo "FALLBACK_BROWSER=chrome" >> $GITHUB_ENV
+          fi
+
+      - name: Run tests in Docker
+        run: |
+          BROWSER=${{ env.FALLBACK_BROWSER || matrix.browser }}
+          docker run --rm \
+            -e BROWSER=$BROWSER \
+            -v ${{ github.workspace }}/results/${{ matrix.browser }}:/usr/src/app/allure-results \
+            wdio-telnyx
+
+      - name: List Allure results (debug)
+        run: |
+          echo ">>> Listing contents of results folder:"
+          ls -lR results/${{ matrix.browser }}
 
       - name: Install Allure CLI
         run: npm install -g allure-commandline --save-dev
 
       - name: Generate Allure HTML report
         run: |
-          echo ">>> Generating Allure report for ${{ matrix.browser }}"
+          echo ">>> Generating Allure report from results/${{ matrix.browser }}"
           npx allure generate results/${{ matrix.browser }} --clean -o reports/${{ matrix.browser }}
 
       - name: Upload Allure report as artifact
@@ -80,3 +58,27 @@ jobs:
         with:
           name: allure-report-${{ matrix.browser }}
           path: reports/${{ matrix.browser }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Download all artifacts into ./reports
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./reports
+          merge-multiple: false
+
+      # Deploy Allure reports to GitHub Pages
+      - name: Deploy Allure reports to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./reports
+          keep_files: false
