@@ -62,6 +62,24 @@ export const config = {
   },
 
   /**
+   * Define default viewports and set the default one (base)
+   */
+  before: async function () {
+    // 💻 All available viewport types
+    browser.defaultViewports = {
+      base: { width: 1920, height: 1080 }, // default at start
+      desktop: { width: 1280, height: 800 },
+      mobile: { width: 390, height: 844 },
+    };
+
+    // ⚙️ Apply base viewport at start
+    const { width, height } = browser.defaultViewports.base;
+    await browser.setWindowSize(width, height);
+
+    console.log(`✅ Default viewport set to Base: ${width}x${height}`);
+  },
+
+  /**
    * Take screenshot on test failure and attach to Allure
    */
   afterTest: async function (test, context, { error }) {

@@ -2,8 +2,9 @@
 import MainPage from '../pages/mainPage.js';
 import ContactUsPage from '../pages/contactUs.js';
 
-describe('Telnyx', () => {
+describe('Telnyx Main', () => {
   beforeEach(async () => {
+    // Reload session and open main page
     await browser.reloadSession();
     await MainPage.open();
     await browser.pause(2000);
@@ -17,7 +18,8 @@ describe('Telnyx', () => {
   });
 
   it('Check Navigation menu in Header (Desktop)', async () => {
-    await browser.setWindowSize(1280, 800);
+    const { width, height } = browser.defaultViewports.desktop;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
     const menuItems = [
       ' button[type="button"][id="radix-_R_4b9divb_"]',
@@ -32,7 +34,8 @@ describe('Telnyx', () => {
   });
 
   it('Check Navigation menu in Header (Mobile)', async () => {
-    await browser.setWindowSize(390, 844);
+    const { width, height } = browser.defaultViewports.mobile;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
 
     // open burger-menu
@@ -52,13 +55,15 @@ describe('Telnyx', () => {
   });
 
   it('Navigate to Pricing (Desktop)', async () => {
-    await browser.setWindowSize(1280, 800);
+    const { width, height } = browser.defaultViewports.desktop;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
     await MainPage.navigateToPricing();
   });
 
   it('Navigate to Products via dropdown (Desktop)', async () => {
-    await browser.setWindowSize(1280, 800);
+    const { width, height } = browser.defaultViewports.desktop;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
     await MainPage.navigateToProductsViaDropdown();
   });
@@ -69,7 +74,8 @@ describe('Telnyx', () => {
   });
 
   it('Check footer columns and social media links (Desktop)', async () => {
-    await browser.setWindowSize(1280, 800);
+    const { width, height } = browser.defaultViewports.desktop;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
 
     const footer = await $('footer[class*="pb-xxl"] ');
@@ -86,7 +92,8 @@ describe('Telnyx', () => {
   });
 
   it('Check footer columns and social media links (Mobile)', async () => {
-    await browser.setWindowSize(390, 844);
+    const { width, height } = browser.defaultViewports.mobile;
+    await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
     const footer = await $('footer');
     await footer.scrollIntoView();
@@ -109,19 +116,20 @@ describe('Telnyx', () => {
     });
 
     it('Search (Desktop)', async () => {
-      await browser.setWindowSize(1280, 800);
+      const { width, height } = browser.defaultViewports.desktop;
+      await browser.setWindowSize(width, height);
       await ContactUsPage.acceptCookies();
       await ContactUsPage.checkSetiLinkAndSearch('SIP');
     });
 
     it('Navigate to Contact us, check Talk to an expert text (Desktop)', async () => {
-      await browser.setWindowSize(1280, 800);
+      const { width, height } = browser.defaultViewports.desktop;
+      await browser.setWindowSize(width, height);
       await ContactUsPage.acceptCookies();
       await ContactUsPage.navigateToContactUs();
     });
 
     xit('Navigate to Login (Desktop)', async () => {
-      await browser.setWindowSize(1280, 800);
       await MainPage.acceptCookies();
       await MainPage.clickLoginButton();
     });
