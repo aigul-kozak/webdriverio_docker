@@ -93,9 +93,6 @@ class ContactUsPage {
     // check header
     await this.sipHeading.waitForDisplayed({ timeout: 10000 });
     await expect(this.sipHeading).toBeDisplayed();
-    await browser.pause({
-      timeout: 2000,
-    });
   }
 
   // navigate to Contact Us and check "Talk to an expert"

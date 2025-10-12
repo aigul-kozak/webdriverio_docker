@@ -168,7 +168,7 @@ export const config = {
     [
       'allure',
       {
-        outputDir: `reports/${browserName}`,
+        outputDir: `/app/allure-results/${browserName}`,
         disableWebdriverStepsReporting: true,
         disableWebdriverScreenshotsReporting: false,
       },
