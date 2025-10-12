@@ -25,10 +25,10 @@ jobs:
           mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
           echo "Running tests in ${{ matrix.browser }}"
           docker run --rm \
-            -e BROWSER=${{ matrix.browser }} \
-            -e BASE_URL=https://telnyx.com \
-            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/app/allure-results \
-            wdio-telnyx
+          -e BROWSER=${{ matrix.browser }} \
+          -e BASE_URL=https://telnyx.com \
+          -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/app/allure-results/${{ matrix.browser }} \
+          wdio-telnyx
 
       - name: Upload Allure raw results
         if: always()
