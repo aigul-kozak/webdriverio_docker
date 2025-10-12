@@ -233,7 +233,6 @@ export const config = {
   before: async function () {
     const selected = process.env.VIEWPORT || 'base';
     const vp = viewports[selected] || viewports.base;
-    console.log(`📱 Using viewport: ${selected} (${vp.width}x${vp.height})`);
     await browser.setWindowSize(vp.width, vp.height);
     globalThis.viewports = viewports;
   },
