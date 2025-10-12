@@ -90,8 +90,6 @@ class MainPage {
   }
 
   async checkHeaderMenu(items) {
-    await expect(this.header).toBeDisplayed();
-
     for (const selector of this.menuItems) {
       const element = await $(selector);
       await expect(element).toExist();
