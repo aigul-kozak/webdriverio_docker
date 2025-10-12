@@ -10,7 +10,11 @@
     "test:mobile:chrome": "cross-env BROWSER=chrome VIEWPORT=mobile npx wdio run ./wdio.conf.js",
     "test:mobile:firefox": "cross-env BROWSER=firefox VIEWPORT=mobile npx wdio run ./wdio.conf.js",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
-    "allure:open": "allure open allure-report"
+    "allure:open": "allure open allure-report",
+    "docker:chrome:win": "docker run -it --rm -e BROWSER=chrome -e BASE_URL=https://telnyx.com -v %cd%\\reports\\chrome:/app/allure-results/chrome wdio-telnyx",
+    "docker:firefox:win": "docker run -it --rm -e BROWSER=firefox -e BASE_URL=https://telnyx.com -v %cd%\\reports\\firefox:/app/allure-results/firefox wdio-telnyx",
+    "docker:chrome:unix": "docker run -it --rm -e BROWSER=chrome -e BASE_URL=https://telnyx.com -v $(pwd)/reports/chrome:/app/allure-results/chrome wdio-telnyx",
+    "docker:firefox:unix": "docker run -it --rm -e BROWSER=firefox -e BASE_URL=https://telnyx.com -v $(pwd)/reports/firefox:/app/allure-results/firefox wdio-telnyx"
   },
   "devDependencies": {
     "@wdio/allure-reporter": "^8.36.0",

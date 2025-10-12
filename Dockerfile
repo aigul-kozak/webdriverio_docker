@@ -17,5 +17,7 @@ RUN apt-get update && apt-get install -y wget gnupg2 xvfb curl unzip fontconfig 
 # env var
 ENV DOCKER=true
 
-# Chrome by default
+
+RUN mkdir -p /app/allure-results/chrome /app/allure-results/firefox
+
 CMD ["npx", "wdio", "run", "./wdio.conf.js"]

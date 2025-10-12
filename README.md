@@ -3,8 +3,13 @@ Automated end-to-end tests for the Telnyx website using WebdriverIO, Allure Repo
 
 Project Structure
 project/
-├─ tests/ # Test files (\*.spec.js)
-├─ pages/ # Page Object classes
+tests/
+├─ pages/
+│ └─ mainPage.js
+├─ specs/
+│ └─ telnyx.spec.js
+└─ project_root/config
+│ └─ helpers.js
 ├─ wdio.conf.js # WebdriverIO main config
 ├─ package.json # Dependencies and scripts
 ├─ Dockerfile # Docker image for running tests
@@ -48,19 +53,13 @@ Run Tests in Docker
 Build Docker Image
 docker build -t wdio-telnyx .
 Run Tests per Browser
-Chrome:
-docker run -it --rm \
- -e BROWSER=chrome \
- -e BASE_URL=https://telnyx.com \
- -v $(pwd)/reports/chrome:/app/allure-results \
- wdio-telnyx
-Firefox:
-docker run -it --rm \
- -e BROWSER=firefox \
- -e BASE_URL=https://telnyx.com \
- -v $(pwd)/reports/firefox:/app/allure-results \
- wdio-telnyx
-After execution, Allure raw results will appear inside your local ./reports folder.
+Windows Chrome: cmd:
+npm run docker:chrome:win
+Windows Firefox:cmd:
+npm run docker:firefox:win
+Linux / macOS:
+npm run docker:chrome:unix
+npm run docker:firefox:unix
 
 GitHub Actions CI/CD
 The workflow .github/workflows/wdio-e2e-tests.yaml:
