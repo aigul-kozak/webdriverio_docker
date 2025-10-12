@@ -18,5 +18,4 @@ RUN apt-get update && apt-get install -y wget gnupg2 xvfb curl unzip fontconfig 
 ENV DOCKER=true
 
 # Chrome by default
-CMD ["npx", "wdio", "wdio.conf.js"]
-
+CMD ["npx", "wdio", "run", "./wdio.conf.js"]
