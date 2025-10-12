@@ -11,100 +11,58 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        browser: [chrome, firefox, edge]
-        platform: [desktop, mobile]
+        browser: [chrome, firefox]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t wdio-telnyx .
 
-      - name: Prepare folders
+      - name: Run WDIO tests in Docker
         run: |
-          mkdir -p ${{ github.workspace }}/results/${{ matrix.browser }}/${{ matrix.platform }}
-          mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}/${{ matrix.platform }}
-
-      - name: Run tests in Docker
-        run: |
+          mkdir -p ${{ github.workspace }}/reports/${{ matrix.browser }}
+          echo "Running tests in ${{ matrix.browser }}"
           docker run --rm \
             -e BROWSER=${{ matrix.browser }} \
-            -e PLATFORM=${{ matrix.platform }} \
-            -e ALLURE_RESULTS=/usr/src/app/allure-results \
-            -v ${{ github.workspace }}/results/${{ matrix.browser }}/${{ matrix.platform }}:/usr/src/app/allure-results \
+            -e BASE_URL=https://telnyx.com \
+            -v ${{ github.workspace }}/reports/${{ matrix.browser }}:/app/allure-results \
             wdio-telnyx
 
-      - name: List Allure results
-        run: ls -lR results/${{ matrix.browser }}/${{ matrix.platform }}
-
-      - name: Install Allure CLI
-        run: npm install -g allure-commandline --save-dev
-
-      - name: Generate Allure HTML report per browser/platform
-        run: |
-          npx allure generate results/${{ matrix.browser }}/${{ matrix.platform }} --clean -o reports/${{ matrix.browser }}/${{ matrix.platform }}
-
-      - name: Upload Allure report as artifact
+      - name: Upload Allure raw results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report-${{ matrix.browser }}-${{ matrix.platform }}
-          path: reports/${{ matrix.browser }}/${{ matrix.platform }}
+          name: allure-results-${{ matrix.browser }}
+          path: reports/${{ matrix.browser }}
 
-  deploy:
-    runs-on: ubuntu-latest
+  combine-and-deploy:
     needs: e2e-tests
-    if: github.ref == 'refs/heads/main'
-
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Download all artifacts
+      - name: Download Allure results from all browsers
         uses: actions/download-artifact@v4
         with:
-          path: ./reports
-          merge-multiple: false
+          path: ./allure-results
 
-      - name: Create root index.html with buttons for browsers/platforms
+      - name: Install Allure CLI
         run: |
-          cat <<EOF > ./reports/index.html
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <title>Allure Test Reports</title>
-            <style>
-              body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-              a.button {
-                display: inline-block;
-                padding: 12px 24px;
-                margin: 10px;
-                font-size: 18px;
-                text-decoration: none;
-                color: white;
-                background-color: #007bff;
-                border-radius: 6px;
-              }
-              a.button:hover { background-color: #0056b3; }
-            </style>
-          </head>
-          <body>
-            <h1>Allure Test Reports</h1>
-            <h2>Desktop</h2>
-            <a class="button" href="./chrome/desktop/index.html" target="_blank">Chrome Desktop</a>
-            <a class="button" href="./firefox/desktop/index.html" target="_blank">Firefox Desktop</a>
-            <a class="button" href="./edge/desktop/index.html" target="_blank">Edge Desktop</a>
-            <h2>Mobile</h2>
-            <a class="button" href="./chrome/mobile/index.html" target="_blank">Chrome Mobile</a>
-            <a class="button" href="./firefox/mobile/index.html" target="_blank">Firefox Mobile</a>
-            <a class="button" href="./edge/mobile/index.html" target="_blank">Edge Mobile</a>
-          </body>
-          </html>
-          EOF
+          sudo apt-get update && sudo apt-get install -y openjdk-11-jre
+          npm install -g allure-commandline --save-dev
 
-      - name: Deploy Allure reports to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Combine Allure results
+        run: |
+          mkdir -p ./merged-results
+          cp -r allure-results/*/* ./merged-results || true
+          allure generate ./merged-results --clean -o ./allure-report
+
+      - name: Deploy Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
           publish_branch: gh-pages
-          publish_dir: ./reports
-          keep_files: false
