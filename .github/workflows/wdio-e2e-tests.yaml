@@ -56,33 +56,23 @@ jobs:
 
       - name: Merge Allure results and generate report
         run: |
-          echo "Merging Allure results from browsers..."
+          echo " Contents of downloaded allure-results:"
+          ls -R ./allure-results || true
 
-          # Create merged-results folder
-          mkdir -p ./merged-results
-
-          # Iterate over each browser folder
-          for dir in allure-results/*; do
-            browser=$(basename "$dir")
-            echo "Processing results for $browser"
-
-            # Add environment info for each browser
-            echo "Browser=$browser" > "$dir/environment.properties"
-
-            # Copy each browser's results into its own subfolder to avoid overwriting
-            mkdir -p ./merged-results/$browser
-            cp -r "$dir"/* ./merged-results/$browser/
+          # Add environment info for each browser subfolder
+          for dir in ./allure-results/*; do
+            if [ -d "$dir" ]; then
+              browser=$(basename "$dir")
+              echo "Processing $browser results..."
+              echo "Browser=$browser" > "$dir/environment.properties"
+            fi
           done
 
-          # List merged results for debugging
-          echo "Merged results structure:"
-          ls -R ./merged-results || true
+          echo " Generating merged Allure report..."
+          # Generate report by passing all browser subfolders directly to Allure
+          allure generate $(find ./allure-results -mindepth 1 -maxdepth 1 -type d) --clean -o ./allure-report
 
-          # Generate Allure report from all merged subfolders
-          allure generate ./merged-results/* --clean -o ./allure-report
-
-          # List generated report for debugging
-          echo "Generated Allure report:"
+          echo " Report generated successfully"
           ls -R ./allure-report || true
 
       - name: Deploy Allure report to GitHub Pages
