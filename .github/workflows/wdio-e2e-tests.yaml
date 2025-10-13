@@ -54,10 +54,14 @@ jobs:
           sudo apt-get update && sudo apt-get install -y openjdk-11-jre
           npm install -g allure-commandline --save-dev
 
-      - name: Combine Allure results
+      - name: Combine Allure results with environment info
         run: |
           mkdir -p ./merged-results
-          cp -r allure-results/*/* ./merged-results || true
+          for dir in allure-results/*; do
+          browser=$(basename "$dir")
+          echo "Browser=$browser" > "$dir/environment.properties"
+          cp -r "$dir"/* ./merged-results/ || true
+          done
           allure generate ./merged-results --clean -o ./allure-report
 
       - name: Deploy Allure report to GitHub Pages
