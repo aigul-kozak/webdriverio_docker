@@ -1,12 +1,10 @@
 WDIO Tests
 Automated end-to-end tests for the Telnyx website using WebdriverIO, Allure Reports, Docker, and GitHub Actions CI/CD.
 
-Project Structure
-project/
-tests/
-├─ pages/
+WDIO_TESTS_TELNYX/tests/
+│ ├─ pages/
 │ └─ mainPage.js
-├─ specs/
+│ ├─ specs/
 │ └─ telnyx.spec.js
 └─ project_root/config
 │ └─ helpers.js
