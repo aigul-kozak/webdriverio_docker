@@ -176,9 +176,10 @@ export const config = {
   ],
   beforeSuite: function (suite) {
     const allure = require('@wdio/allure-reporter').default;
-    allure.addEnvironment('Browser', browser.capabilities.browserName);
-    allure.addLabel('browserName', browser.capabilities.browserName);
+    allure.addEnvironment('Browser', browser.capabilities.browserName); // Environment
+    allure.addLabel('browser', browser.capabilities.browserName); // Label for filtering
   },
+
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
   mochaOpts: {
