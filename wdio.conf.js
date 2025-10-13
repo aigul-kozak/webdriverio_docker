@@ -185,6 +185,16 @@ export const config = {
     allure.addEnvironment('Browser', browserName);
     allure.addLabel('browser', browserName);
   },
+  beforeEach: function (test) {
+    const allure = require('@wdio/allure-reporter').default;
+    const browserName = browser.capabilities.browserName;
+
+    // Add browser name as a parent suite in Allure
+    allure.addLabel('parentSuite', browserName);
+
+    // Add browser info to environment for filtering in the report
+    allure.addEnvironment('Browser', browserName);
+  },
 
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
