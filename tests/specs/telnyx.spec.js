@@ -9,7 +9,9 @@ let browserName;
 describe('Telnyx Main (desktop tests)', () => {
   before(async () => {
     browserName = (await browser.capabilities.browserName).toUpperCase();
-    allureReporter.addEnvironment('Browser', browserName);
+    // optionally: add browser as parent suite for Allure grouping
+    allureReporter.addLabel('parentSuite', browserName);
+
     await MainPage.open();
     await MainPage.waitForPageLoad(15000);
     const { width, height } = viewports.desktop;
