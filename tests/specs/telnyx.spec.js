@@ -2,14 +2,23 @@
 import { viewports, footerSections } from '../../project_root/config/helpers.js';
 import MainPage from '../pages/mainPage.js';
 import ContactUsPage from '../pages/contactUs.js';
+import allureReporter from '@wdio/allure-reporter';
+
+let browserName;
 
 describe('Telnyx Main (desktop tests)', () => {
   before(async () => {
+    browserName = (await browser.capabilities.browserName).toUpperCase();
+    allureReporter.addEnvironment('Browser', browserName);
     await MainPage.open();
     await MainPage.waitForPageLoad(15000);
     const { width, height } = viewports.desktop;
     await browser.setWindowSize(width, height);
     await MainPage.acceptCookies();
+  });
+  beforeEach(() => {
+    // Add browser as parent suite for grouping
+    allureReporter.addLabel('parentSuite', browserName);
   });
 
   it('Open the app and check the Main page title', async () => {
@@ -41,8 +50,7 @@ describe('Telnyx Main (desktop tests)', () => {
   });
 });
 
-const browserName = (await browser.capabilities.browserName).toLowerCase();
-if (browserName !== 'firefox') {
+if (process.env.BROWSER?.toLowerCase() !== 'firefox') {
   describe('Telnyx Main (mobile tests)', () => {
     before(async () => {
       await browser.reloadSession();
@@ -51,6 +59,9 @@ if (browserName !== 'firefox') {
       await MainPage.open();
       await MainPage.waitForPageLoad(15000);
       await MainPage.acceptCookies();
+    });
+    beforeEach(() => {
+      allureReporter.addLabel('parentSuite', browserName);
     });
     it('Check Navigation menu in Header (Mobile)', async () => {
       // open burger-menu
@@ -75,6 +86,7 @@ describe('Telnyx Contact us', () => {
     const { width, height } = viewports.desktop;
     await browser.setWindowSize(width, height);
     await ContactUsPage.acceptCookies();
+    allureReporter.addLabel('parentSuite', browserName);
   });
 
   it('Search (Desktop)', async () => {
