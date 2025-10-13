@@ -1,0 +1,1 @@
+{"total":2,"items":[{"uid":"ecc6783ef63d75a3e6a62a4048ca1e6b","name":"CHROME","statistic":{"failed":0,"broken":0,"skipped":0,"passed":10,"unknown":0,"total":10}},{"uid":"d3f1bc4098787fac81fea247eb936b8a","name":"FIREFOX","statistic":{"failed":0,"broken":0,"skipped":0,"passed":8,"unknown":0,"total":8}}]}
