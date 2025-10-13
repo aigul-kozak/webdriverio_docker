@@ -168,7 +168,7 @@ export const config = {
     [
       'allure',
       {
-        outputDir: `/app/allure-results/${browserName}`,
+        outputDir: `/app/allure-results/${process.env.BROWSER || 'chrome'}`,
         disableWebdriverStepsReporting: true,
         disableWebdriverScreenshotsReporting: false,
       },
